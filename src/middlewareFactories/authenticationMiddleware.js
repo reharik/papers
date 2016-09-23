@@ -1,6 +1,6 @@
 const http = require('_http_server');
 
-const authenticationMiddleware = (strategies, clientOptions, papersOptions) => {
+const authenticationMiddleware = (strategies, papersOptions, clientOptions) => {
   return (req, res, next) => {
     let failures = [];
 
@@ -21,12 +21,8 @@ const authenticationMiddleware = (strategies, clientOptions, papersOptions) => {
       switch (result.type) {
         case 'fail':
         {
-          //TODO sanitize and standarize error message
           // details here is {error, status}
           failures.push(result.details);
-
-          //TODO put clientOptions.failureRedirectTo here
-
           break;
         }
         case 'redirect':
@@ -36,16 +32,19 @@ const authenticationMiddleware = (strategies, clientOptions, papersOptions) => {
         }
         case 'error':
         {
+          if(customHandler) {
+            customHandler(result);
+            return next();
+          }
           next(result.details.error);
           break;
         }
         case 'success':
         {
-
-          //TODO need custom callback imple
-          //TODO need a session restored login pass through. perhaps as it's own response type
-
-
+          if(customHandler) {
+            customHandler(result);
+            return next();
+          }
           // /********* successFlash *************/
           // if (clientOptions.successFlash) {
           //   var flash = {
@@ -67,33 +66,7 @@ const authenticationMiddleware = (strategies, clientOptions, papersOptions) => {
           //   return next();
           // }
 
-          // if there is no session established set the user on the req and return
-          // not sure why the client would pass a session into the authenticator like
-          // this.  perhaps I should remove it.
-          if (typeof clientOptions.session !== 'object' && clientOptions.session !== undefined) {
-            req[papersOptions.userProperty] = result.details.user;
-            return;
-          }
-
-          // if there is a session established but req._papers is undefined,
-          // then you have probably forgotten initialize papers in setup
-          if (!req._papers || !req._papers.instance) {
-            throw new Error('papers.initialize() middleware not in use');
-          }
-
-          req.session = req.session || {};
-          req._papers.session = req._papers.session || {};
-
-          try {
-            req._papers.session.user = req._papers.instance.serializeUser(result.details.user);
-          } catch (err) {
-            throw err
-          }
-          req.session[papersOptions.key] = req._papers.session;
-          // I think this is supposed to be putting it somewhere else
-          req[papersOptions.userProperty] = result.details.user;
-
-
+          req.login(req, papersOptions, clientOptions);
 
           // /********* authInfo *************/
           // if (clientOptions.authInfo !== false) {
@@ -108,6 +81,11 @@ const authenticationMiddleware = (strategies, clientOptions, papersOptions) => {
           }
           return next()
         }
+        case 'sessionSuccess':{
+         // this is for the non login case where the user is pulled from session.
+         // we want don't want to pass through, and we don't want to re login, just proceed.
+          return next();
+        }
       }
     }
 
@@ -115,8 +93,13 @@ const authenticationMiddleware = (strategies, clientOptions, papersOptions) => {
       failures.push({error: "No successful login strategy found", status: 401})
     }
 
-    var errorMessages = failures.filter(failure => typeof failure.challenge == 'string').map(failure => failure.challenge)
+    var errorMessages = failures.filter(failure => typeof failure.challenge == 'string').map(failure => failure.challenge);
     res.statusCode = failures.map(function(f) { return f.status; }).reduce((prev, curr) => prev || curr, 401 );
+
+    if(customHandler) {
+      customHandler({type:'fail', details: {errorMessage: errorMessages[0], statusCode: http.STATUS_CODES[res.statusCode]}});
+      return next();
+    }
 
     if (res.statusCode == 401 && errorMessages.length) {
       res.setHeader('WWW-Authenticate', errorMessages);
