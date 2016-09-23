@@ -3,7 +3,7 @@ var authenticationMiddleware = require('./middlewareFactories/authenticationMidd
 var initializationMiddleware = require('./middlewareFactories/initializationMiddleware');
 var requestDecorator = require('./requestDecorator');
 
-module.exports = class Authenticator {
+module.exports = class Papers {
   constructor() {
     this.strategies = {};
     this.serializers = [];
@@ -32,20 +32,31 @@ module.exports = class Authenticator {
  );
 */
 
-  createAuthenticationMiddleware(_strategies, clientOptions){
+  createAuthenticationMiddleware(_strategies, clientOptions, customHandler){
+    if (typeof clientOptions == 'function') {
+      customHandler = clientOptions;
+      clientOptions = {};
+    }
+    
     let papersOptions = {
+      customHandler,
       key: this.key,
       userProperty: this.userPropery
     }; 
     const strategiesArray = Array.isArray(_strategies) ? _strategies : [_strategies];
     const strategies = strategiesArray.map(name => this.strategies[name]);
-    return authenticationMiddleware(strategies, clientOptions, papersOptions);
+    return authenticationMiddleware(strategies, papersOptions, clientOptions);
   }
 
   createInitializationMiddleware(){
     return initializationMiddleware(this, requestDecorator);
   }
 
+  //TODO add session authentication method here.
+  //TODO add session authentication method here.
+  //TODO add session authentication method here.
+  
+  
   registerSerializeUserFunction (fn) {
     if (typeof fn === 'function') {
       return this.serializers.push(fn);

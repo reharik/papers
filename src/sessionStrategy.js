@@ -1,9 +1,7 @@
 /**
  * Module dependencies.
  */
-var pause = require('pause')
-  , util = require('util');
-
+var pause = require('pause');
 
 /**
  * `SessionStrategy` constructor.
@@ -43,22 +41,21 @@ module.exports = class SessionStrategy {
     //       matter, refer to: https://github.com/jaredhanson/papers/pull/106
 
     var paused = options.pauseStream ? pause(req) : null;
-    const deserializedUser = req._papers.instance.deserializeUser(user, req);
+    const deserializedUser = req._papers.instance.deserializeUser(user);
 
-    // return self.error(err);
+    let result = {type: 'pass'};
     if (!deserializedUser) {
       delete req._papers.session.user;
-      if (paused) {
-        paused.resume();
-      }
-      return {type: 'pass'};
+    } else {
+      var property = req._papers.instance._userProperty || 'user';
+      req[property] = deserializedUser;
+      result = {type: 'sessionSuccess'};
     }
 
-    var property = req._papers.instance._userProperty || 'user';
-    req[property] = deserializedUser;
     if (paused) {
       paused.resume();
     }
-    return {type: 'sessionSuccess'};
+
+    return result
   };
-}
+};
