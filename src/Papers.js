@@ -27,7 +27,7 @@ module.exports = class Papers {
 
 /*
  app.post('/login',
- papers.createAuthenticateMiddleware('local', { failureRedirect: '/login' }),
+ papers.createAuthenticateMiddleware('local', { failureRedirect: '/losgin' }),
  authController.login
  );
 */
