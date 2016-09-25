@@ -1,11 +1,22 @@
 {
   "name": "papers",
-  "version": "1.0.0",
+  "version": "1.1.1",
   "description": "",
-  "main": "index.js",
+  "main": "src/papers.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "mocha --watch tests/*",
+    "intTests": "mocha integrationTests/*.tests.js"
   },
   "author": "",
-  "license": "ISC"
+  "license": "ISC",
+  "devDependencies": {
+    "chai": "^3.5.0",
+    "express": "^4.14.0",
+    "mocha": "^3.0.2",
+    "papers-local": "reharik/papers-local",
+    "supertest": "^2.0.0"
+  },
+  "dependencies": {
+    "co": "^4.6.0"
+  }
 }
