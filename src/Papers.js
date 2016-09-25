@@ -1,74 +1,43 @@
-var state = require('./authenticatorState');
-var authenticationMiddleware = require('./middlewareFactories/authenticationMiddleware');
-var initializationMiddleware = require('./middlewareFactories/initializationMiddleware');
-var requestDecorator = require('./requestDecorator');
+var createAuthenticationMiddleware = require('./middlewareFactories/authenticationMiddleware');
 
-module.exports = class Papers {
-  constructor() {
-    this.strategies = {};
-    this.serializers = [];
-    this.deserializers = [];
-    this.infoTransformers = [];
-    this.userProperty = 'user';
-    this.key = 'papers';
-  }
-  
-  use(name, strategy) {
-    if (!name) { throw new Error('Authentication strategies must have a name'); }
+module.exports = function() {
 
-    this.strategies[name] = strategy;
-    return this;
-  }
-  
-  unuse(name){
-    delete this.strategies[name];
-    return this;
-  }
+  logIn = function (req, user, papers) {
 
-/*
- app.post('/login',
- papers.createAuthenticateMiddleware('local', { failureRedirect: '/losgin' }),
- authController.login
- );
-*/
+    req[papers.userProperty] = user;
+    let session = req.session[papers.key] || {};
 
-  createAuthenticationMiddleware(_strategies, clientOptions, customHandler){
-    if (typeof clientOptions == 'function') {
-      customHandler = clientOptions;
-      clientOptions = {};
+    if (typeof session !== 'object') {
+      return;
     }
-    
-    let papersOptions = {
-      customHandler,
-      key: this.key,
-      userProperty: this.userPropery
-    }; 
-    const strategiesArray = Array.isArray(_strategies) ? _strategies : [_strategies];
-    const strategies = strategiesArray.map(name => this.strategies[name]);
-    return authenticationMiddleware(strategies, papersOptions, clientOptions);
-  }
-
-  createInitializationMiddleware(){
-    return initializationMiddleware(this, requestDecorator);
-  }
-
-  //TODO add session authentication method here.
-  //TODO add session authentication method here.
-  //TODO add session authentication method here.
-  
-  
-  registerSerializeUserFunction (fn) {
-    if (typeof fn === 'function') {
-      return this.serializers.push(fn);
+    try {
+      session.user = papers.serializeUser(user);
+    } catch (err) {
+      throw err
     }
   };
 
-  serializeUser(user) {
+  logOut = function (userProperty, key) {
+    req[userProperty] = null;
+    if (req.session && req.session[key]) {
+      delete req.session[key].user;
+    }
+  };
+
+
+  isAuthenticated = function (req) {
+    if (!req._papers) {
+      return false;
+    }
+    return (req.session[req._papers.key]) ? true : false;
+  };
+
+  serializeUser = function (user, papers) {
     // private implementation that traverses the chain of serializers, attempting
     // to serialize a user
-    for (let i = 0; this.serializers.length; i++) {
+    for (let i = 0; papers.serializers.length; i++) {
 
-      var layer = this.serializers[i];
+      var layer = papers.serializers[i];
       if (!layer) {
         throw new Error('Failed to serialize user into session');
       }
@@ -84,18 +53,11 @@ module.exports = class Papers {
 
     }
   };
-  
-  registerDeserializeUserFunction (fn) {
-    if (typeof fn !== 'function') {
-      throw new Error('Deserialization function must be a function');
-    }
-    this.deserializers.push(fn);
-  };
 
-  deserializeUser(user) {
-    for (let i = 0; this.deserializers; i++) {
+  deserializeUser = function (user, papers) {
+    for (let i = 0; papers.deserializers; i++) {
 
-      var layer = this.deserializers[i];
+      var layer = papers.deserializers[i];
       if (!layer) {
         throw new Error('Failed to serialize user into session');
       }
@@ -111,18 +73,10 @@ module.exports = class Papers {
     }
   };
 
-  registerTransformAuthInfoFunction (fn)
-  {
-    if (typeof fn !== 'function') {
-      throw new Error('TransformAuthInfo function must be a function');
-    }
-    this.infoTransformers.push(fn);
-  };
+  transformAuthInfo = function (info, papers) {
+    for (let i = 0; papers.infoTransformers; i++) {
 
-  transformAuthInfo (info){
-    for (let i = 0; this.infoTransformers; i++) {
-
-      var layer = this.infoTransformers[i];
+      var layer = papers.infoTransformers[i];
       if (!layer) {
 
         // if no transformers are registered (or they all pass), the default
@@ -141,4 +95,39 @@ module.exports = class Papers {
     }
   };
 
+  return {
+    registerMiddleware: function (config) {
+      if (!config.strategies || config.strategies.length <= 0) {
+        throw new Error('You must provide at lease one strategy.');
+      }
+      if(config.useSession && (
+          !config.serializers|| config.serializers.length <= 0
+        || !config.deserializers || config.deserializers.length <= 0
+        )){
+        throw new Error('You must provide at least one user serializer and one user deserializer if you want to use session');
+      }
+
+      const papers = {
+        functions: {
+          strategies: config.strategies,
+          serializers: config.serializers,
+          deserializers: config.deserializers,
+          infoTransformers: config.infoTransformers,
+          logIn,
+          logOut,
+          isAuthenticated,
+          serializeUser,
+          deserializeUser,
+          transformAuthInfo
+        },
+        options: {
+          useSession: config.useSession,
+          userProperty: 'user',
+          key: 'papers',
+        }
+      };
+
+      return createAuthenticationMiddleware(papers);
+    }
+  }
 };

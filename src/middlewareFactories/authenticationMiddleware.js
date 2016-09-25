@@ -1,8 +1,28 @@
 const http = require('_http_server');
 
-const authenticationMiddleware = (strategies, papersOptions, clientOptions) => {
+const createAuthenticationMiddleware = (papers) => {
   return (req, res, next) => {
-    let failures = [];
+
+    /********* add convenience methods to req *************/
+    req.logOut = papers.functions.logout({userProperty: papers.options.userProperty, key: papers.options.key});
+    req.isAuthenticated = papers.functions.isAuthenticated(req);
+
+    /********* check session for auth *************/
+    if(papers.options.useSession
+      && req.session[papers.options.key]
+      && req.session[papers.options.key].user) {
+      try {
+        const user = papers.functions.deserializeUsers(req.session[papers.options.key].user, papers);
+        if (user) {
+          req[papers.options.userProperty] = user;
+          return next();
+        }
+        delete req.session[papers.options.key].user;
+      } catch (ex) {
+        throw new Error("Error thrown during deserialization of user.");
+      }
+    }
+
 
     const redirect = (url, status) => {
       res.statusCode = status || 302;
@@ -11,13 +31,15 @@ const authenticationMiddleware = (strategies, papersOptions, clientOptions) => {
       res.end();
     };
 
-    for (let i = 0; i < strategies.length; i++) {
-      const strategy = strategies[i];
+    /********* iterate strategies *************/
+    let failures = [];
+    for (let i = 0; i <  papers.functions.strategies.length; i++) {
+      const strategy = papers.functions.strategies[i];
       if (!strategy) {
         continue;
       }
 
-      const result = strategy.authenticate(req, clientOptions);
+      const result = strategy.authenticate(req, papers);
       switch (result.type) {
         case 'fail':
         {
@@ -32,8 +54,8 @@ const authenticationMiddleware = (strategies, papersOptions, clientOptions) => {
         }
         case 'error':
         {
-          if(customHandler) {
-            customHandler(result);
+          if(papers.options.customHandler) {
+            papers.options.customHandler(result);
             return next();
           }
           next(result.details.error);
@@ -41,10 +63,11 @@ const authenticationMiddleware = (strategies, papersOptions, clientOptions) => {
         }
         case 'success':
         {
-          if(customHandler) {
-            customHandler(result);
+          if(papers.options.customHandler) {
+            papers.options.customHandler(result);
             return next();
           }
+
           // /********* successFlash *************/
           // if (clientOptions.successFlash) {
           //   var flash = {
@@ -66,7 +89,7 @@ const authenticationMiddleware = (strategies, papersOptions, clientOptions) => {
           //   return next();
           // }
 
-          req.login(req, papersOptions, clientOptions);
+          papers.functions.logIn(req, papers);
 
           // /********* authInfo *************/
           // if (clientOptions.authInfo !== false) {
@@ -74,17 +97,12 @@ const authenticationMiddleware = (strategies, papersOptions, clientOptions) => {
           // }
 
           /********* redirect *************/
-          var redirectUrl = req.session.returnTo || clientOptions.successRedirect;
+          var redirectUrl = req.session.returnTo || papers.options.successRedirect;
           delete req.session.returnTo;
           if(redirectUrl){
-            res.redirect(redirectUrl);
+            redirect(redirectUrl, 200);
           }
           return next()
-        }
-        case 'sessionSuccess':{
-         // this is for the non login case where the user is pulled from session.
-         // we want don't want to pass through, and we don't want to re login, just proceed.
-          return next();
         }
       }
     }
@@ -96,18 +114,23 @@ const authenticationMiddleware = (strategies, papersOptions, clientOptions) => {
     var errorMessages = failures.filter(failure => typeof failure.challenge == 'string').map(failure => failure.challenge);
     res.statusCode = failures.map(function(f) { return f.status; }).reduce((prev, curr) => prev || curr, 401 );
 
-    if(customHandler) {
-      customHandler({type:'fail', details: {errorMessage: errorMessages[0], statusCode: http.STATUS_CODES[res.statusCode]}});
+    if(papers.options.customHandler) {
+      papers.options.customHandler({type:'fail', details: {errorMessage: errorMessages[0], statusCode: http.STATUS_CODES[res.statusCode]}});
       return next();
     }
 
     if (res.statusCode == 401 && errorMessages.length) {
       res.setHeader('WWW-Authenticate', errorMessages);
     }
-    if (clientOptions.failWithError) {
+    if (papers.options.failWithError) {
       return next(new Error(http.STATUS_CODES[res.statusCode]));
     }
-    res.end(http.STATUS_CODES[res.statusCode]);
 
+    const redirectOnFailureUrl = papers.options.failureRedirect;
+    if(redirectOnFailureUrl){
+      redirect(redirectOnFailureUrl, res.statusCode);
+    }
+
+    res.end(http.STATUS_CODES[res.statusCode]);
   }
 };
