@@ -1,9 +1,8 @@
-var createAuthenticationMiddleware = require('./middlewareFactories/authenticationMiddleware');
+var createAuthenticationMiddleware = require('./authenticationMiddleware');
 
 module.exports = function() {
 
   logIn = function (req, user, papers) {
-
     req[papers.userProperty] = user;
     let session = req.session[papers.key] || {};
 
@@ -17,19 +16,23 @@ module.exports = function() {
     }
   };
 
-  logOut = function (userProperty, key) {
-    req[userProperty] = null;
-    if (req.session && req.session[key]) {
-      delete req.session[key].user;
+  logOut = function (req, userProperty, key) {
+    return function () {
+      req[userProperty] = null;
+      if (req.session && req.session[key]) {
+        delete req.session[key].user;
+      }
     }
   };
 
 
   isAuthenticated = function (req) {
-    if (!req._papers) {
-      return false;
-    }
-    return (req.session[req._papers.key]) ? true : false;
+    return function () {
+      if (!req._papers) {
+        return false;
+      }
+      return (req.session[req._papers.key]) ? true : false;
+    };
   };
 
   serializeUser = function (user, papers) {
@@ -55,9 +58,9 @@ module.exports = function() {
   };
 
   deserializeUser = function (user, papers) {
-    for (let i = 0; papers.deserializers; i++) {
+    for (let i = 0; papers.functions.deserializers; i++) {
 
-      var layer = papers.deserializers[i];
+      var layer = papers.functions.deserializers[i];
       if (!layer) {
         throw new Error('Failed to serialize user into session');
       }
@@ -97,14 +100,14 @@ module.exports = function() {
 
   return {
     registerMiddleware: function (config) {
-      if (!config.strategies || config.strategies.length <= 0) {
+      if (!config || !config.strategies || config.strategies.length <= 0) {
         throw new Error('You must provide at lease one strategy.');
       }
       if(config.useSession && (
           !config.serializers|| config.serializers.length <= 0
         || !config.deserializers || config.deserializers.length <= 0
         )){
-        throw new Error('You must provide at least one user serializer and one user deserializer if you want to use session');
+        throw new Error('You must provide at least one user serializer and one user deserializer if you want to use session.');
       }
 
       const papers = {
@@ -126,7 +129,6 @@ module.exports = function() {
           key: 'papers',
         }
       };
-
       return createAuthenticationMiddleware(papers);
     }
   }

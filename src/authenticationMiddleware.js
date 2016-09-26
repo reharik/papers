@@ -1,10 +1,10 @@
 const http = require('_http_server');
 
-const createAuthenticationMiddleware = (papers) => {
+module.exports = createAuthenticationMiddleware = (papers) => {
   return (req, res, next) => {
 
     /********* add convenience methods to req *************/
-    req.logOut = papers.functions.logout({userProperty: papers.options.userProperty, key: papers.options.key});
+    req.logOut = papers.functions.logOut(req, {userProperty: papers.options.userProperty, key: papers.options.key});
     req.isAuthenticated = papers.functions.isAuthenticated(req);
 
     /********* check session for auth *************/
@@ -12,7 +12,8 @@ const createAuthenticationMiddleware = (papers) => {
       && req.session[papers.options.key]
       && req.session[papers.options.key].user) {
       try {
-        const user = papers.functions.deserializeUsers(req.session[papers.options.key].user, papers);
+        const user = papers.functions.deserializeUser(req.session[papers.options.key].user, papers);
+
         if (user) {
           req[papers.options.userProperty] = user;
           return next();
@@ -22,7 +23,6 @@ const createAuthenticationMiddleware = (papers) => {
         throw new Error("Error thrown during deserialization of user.");
       }
     }
-
 
     const redirect = (url, status) => {
       res.statusCode = status || 302;
@@ -34,7 +34,8 @@ const createAuthenticationMiddleware = (papers) => {
     /********* iterate strategies *************/
     let failures = [];
     for (let i = 0; i <  papers.functions.strategies.length; i++) {
-      const strategy = papers.functions.strategies[i];
+      //TODO make a instantiation function that accomidates different strategies
+      const strategy = papers.functions.strategies[i]();
       if (!strategy) {
         continue;
       }
