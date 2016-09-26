@@ -3,6 +3,6 @@ module.exports = function(session) {
     session,
     method: 'GET',
     url: '/',
-    headers: {},
+    headers: {}
   }
 };

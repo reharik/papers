@@ -5,7 +5,8 @@ module.exports = function response() {
   var statusCode = 200;
   var _headers = {};
   var _data = '';
-
+  var endWasCalled;
+  
   var getHeader = function (name) {
     return this._headers[name];
   };
@@ -21,11 +22,13 @@ module.exports = function response() {
     if (this._data.length) {
       this.body = this._data;
     }
+    this.endWasCalled = true;
   };
    return {
      statusCode,
      _headers,
      _data,
+     endWasCalled,
      setHeader,
      getHeader,
      end

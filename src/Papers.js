@@ -110,6 +110,7 @@ module.exports = function() {
         throw new Error('You must provide at least one user serializer and one user deserializer if you want to use session.');
       }
 
+      //TODO put some validation in for more of this. 
       const papers = {
         functions: {
           strategies: config.strategies,
@@ -127,6 +128,8 @@ module.exports = function() {
           useSession: config.useSession,
           userProperty: 'user',
           key: 'papers',
+          failureRedirect: config.failureRedirect,
+          failWithError: config.failWithError
         }
       };
       return createAuthenticationMiddleware(papers);

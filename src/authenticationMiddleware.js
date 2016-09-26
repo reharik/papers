@@ -28,36 +28,44 @@ module.exports = createAuthenticationMiddleware = (papers) => {
       res.statusCode = status || 302;
       res.setHeader('Location', url);
       res.setHeader('Content-Length', '0');
-      res.end();
+      return res.end();
+
     };
 
     /********* iterate strategies *************/
     let failures = [];
     for (let i = 0; i <  papers.functions.strategies.length; i++) {
       //TODO make a instantiation function that accomidates different strategies
+
       const strategy = papers.functions.strategies[i]();
       if (!strategy) {
         continue;
       }
 
       const result = strategy.authenticate(req, papers);
+      if(!result || !result.type){
+        continue
+      }
+
       switch (result.type) {
         case 'fail':
         {
           // details here is {error, status}
+
+          //TODO validate that details is in correct format
+          //TODO stragegy for deailing with different error types
           failures.push(result.details);
           break;
         }
         case 'redirect':
         {
-          redirect(result.details.url, result.details.status);
-          break;
+          return redirect(result.details.url, result.details.status);
         }
         case 'error':
         {
           if(papers.options.customHandler) {
             papers.options.customHandler(result);
-            return next();
+            return next(result.error);
           }
           next(result.details.error);
           break;
@@ -112,14 +120,16 @@ module.exports = createAuthenticationMiddleware = (papers) => {
       failures.push({error: "No successful login strategy found", status: 401})
     }
 
-    var errorMessages = failures.filter(failure => typeof failure.challenge == 'string').map(failure => failure.challenge);
+    var errorMessages = failures.filter(failure => failure
+        && failure.error
+        && typeof failure.error == 'string')
+      .map(failure => failure.error);
     res.statusCode = failures.map(function(f) { return f.status; }).reduce((prev, curr) => prev || curr, 401 );
 
     if(papers.options.customHandler) {
       papers.options.customHandler({type:'fail', details: {errorMessage: errorMessages[0], statusCode: http.STATUS_CODES[res.statusCode]}});
       return next();
     }
-
     if (res.statusCode == 401 && errorMessages.length) {
       res.setHeader('WWW-Authenticate', errorMessages);
     }
