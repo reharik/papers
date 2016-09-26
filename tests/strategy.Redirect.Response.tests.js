@@ -9,7 +9,7 @@ chai.should();
 //TODO tests around the schema returned by strat
 
 describe('REDIRECT_RESPONSE', () => {
-  describe('when_no_strategy_is_successful_and_no_specific_errors', () => {
+  describe('when_redirect_is_called_by_strategy', () => {
     let SUT = undefined;
     let req;
     let res;
@@ -24,7 +24,7 @@ describe('REDIRECT_RESPONSE', () => {
       SUT(req, res);
     });
 
-    it.only('should_set_res_status_to_302', () => {
+    it('should_set_res_status_to_302', () => {
       res.statusCode.should.equal(302);
     });
 
@@ -35,7 +35,6 @@ describe('REDIRECT_RESPONSE', () => {
     it('should_set_content-length_to_0', () => {
       res.getHeader('Content-Length').should.equal('0');
     });
-
 
     it('should_call_res.end', () => {
       res.endWasCalled.should.be.true

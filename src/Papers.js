@@ -3,14 +3,15 @@ var createAuthenticationMiddleware = require('./authenticationMiddleware');
 module.exports = function() {
 
   logIn = function (req, user, papers) {
-    req[papers.userProperty] = user;
-    let session = req.session[papers.key] || {};
+    req[papers.options.userProperty] = user;
+    let session = req.session && req.session[papers.options.key] ? req.session[papers.options.key] : null;
 
-    if (typeof session !== 'object') {
+    if (!session) {
       return;
     }
+    
     try {
-      session.user = papers.serializeUser(user);
+      session.user = papers.functions.serializeUser(user, papers);
     } catch (err) {
       throw err
     }
@@ -38,9 +39,9 @@ module.exports = function() {
   serializeUser = function (user, papers) {
     // private implementation that traverses the chain of serializers, attempting
     // to serialize a user
-    for (let i = 0; papers.serializers.length; i++) {
+    for (let i = 0; papers.functions.serializers.length; i++) {
 
-      var layer = papers.serializers[i];
+      var layer = papers.functions.serializers[i];
       if (!layer) {
         throw new Error('Failed to serialize user into session');
       }
@@ -77,9 +78,9 @@ module.exports = function() {
   };
 
   transformAuthInfo = function (info, papers) {
-    for (let i = 0; papers.infoTransformers; i++) {
+    for (let i = 0; papers.functions.infoTransformers; i++) {
 
-      var layer = papers.infoTransformers[i];
+      var layer = papers.functions.infoTransformers[i];
       if (!layer) {
 
         // if no transformers are registered (or they all pass), the default
@@ -129,6 +130,7 @@ module.exports = function() {
           userProperty: 'user',
           key: 'papers',
           failureRedirect: config.failureRedirect,
+          successRedirect: config.successRedirect,
           failWithError: config.failWithError
         }
       };

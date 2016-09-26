@@ -5,7 +5,7 @@ module.exports = function response() {
   var statusCode = 200;
   var _headers = {};
   var _data = '';
-  var endWasCalled;
+  var endWasCalled = false;
   
   var getHeader = function (name) {
     return this._headers[name];

@@ -1,8 +1,49 @@
 const http = require('_http_server');
 
 module.exports = createAuthenticationMiddleware = (papers) => {
-  return (req, res, next) => {
+  //TODO do we even want to facilitate this?
+  const instantiateStrategy = (strat) => {
+    switch(typeof strat) {
+      case 'function': {
+        return strat();
+      }
+      case 'class': {
+        return new Strat();
+      }
+      default: {
+        return strat;
+      }
+    }
+  }
 
+  const standardizeErrors = (details) => {
+    if (typeof details === 'string') {
+      return {
+        errorMessage: details,
+        status: 500
+      }
+    }
+
+    if (typeof details.error === 'Error') {
+      return {
+        errorMessage: details.error.message,
+        status: details.status || 500,
+        exception: details.error
+      }
+    }
+
+    if (typeof details.error === 'string') {
+      return {
+        errorMessage: details.error,
+        status: details.status || 500,
+        exception: details.error
+      }
+    }
+  }
+
+
+
+  return (req, res, next) => {
     /********* add convenience methods to req *************/
     req.logOut = papers.functions.logOut(req, {userProperty: papers.options.userProperty, key: papers.options.key});
     req.isAuthenticated = papers.functions.isAuthenticated(req);
@@ -35,18 +76,15 @@ module.exports = createAuthenticationMiddleware = (papers) => {
     /********* iterate strategies *************/
     let failures = [];
     for (let i = 0; i <  papers.functions.strategies.length; i++) {
-      //TODO make a instantiation function that accomidates different strategies
 
-      const strategy = papers.functions.strategies[i]();
+      const strategy = instantiateStrategy(papers.functions.strategies[i]);
       if (!strategy) {
         continue;
       }
-
       const result = strategy.authenticate(req, papers);
       if(!result || !result.type){
         continue
       }
-
       switch (result.type) {
         case 'fail':
         {
@@ -54,7 +92,7 @@ module.exports = createAuthenticationMiddleware = (papers) => {
 
           //TODO validate that details is in correct format
           //TODO stragegy for deailing with different error types
-          failures.push(result.details);
+          failures.push(standardizeErrors(result.details));
           break;
         }
         case 'redirect':
@@ -67,7 +105,9 @@ module.exports = createAuthenticationMiddleware = (papers) => {
             papers.options.customHandler(result);
             return next(result.error);
           }
-          next(result.details.error);
+          //TODO validate that details is in correct format
+          //TODO stragegy for deailing with different error types
+          return next(standardizeErrors(result.details));
           break;
         }
         case 'success':
@@ -97,8 +137,7 @@ module.exports = createAuthenticationMiddleware = (papers) => {
           //   req[clientOptions.assignProperty] = user;
           //   return next();
           // }
-
-          papers.functions.logIn(req, papers);
+          papers.functions.logIn(req, result.details.user, papers);
 
           // /********* authInfo *************/
           // if (clientOptions.authInfo !== false) {
@@ -106,8 +145,10 @@ module.exports = createAuthenticationMiddleware = (papers) => {
           // }
 
           /********* redirect *************/
-          var redirectUrl = req.session.returnTo || papers.options.successRedirect;
-          delete req.session.returnTo;
+          var redirectUrl = req.session && req.session.returnTo ? req.session.returnTo : papers.options.successRedirect;
+          if(req.session) {
+            delete req.session.returnTo;
+          }
           if(redirectUrl){
             redirect(redirectUrl, 200);
           }
@@ -117,13 +158,13 @@ module.exports = createAuthenticationMiddleware = (papers) => {
     }
 
     if(failures.length <= 0){
-      failures.push({error: "No successful login strategy found", status: 401})
+      failures.push({errorMessage: "No successful login strategy found", status: 401})
     }
 
     var errorMessages = failures.filter(failure => failure
-        && failure.error
-        && typeof failure.error == 'string')
-      .map(failure => failure.error);
+        && failure.errorMessage
+        && typeof failure.errorMessage === 'string')
+      .map(failure => failure.errorMessage);
     res.statusCode = failures.map(function(f) { return f.status; }).reduce((prev, curr) => prev || curr, 401 );
 
     if(papers.options.customHandler) {
@@ -141,7 +182,6 @@ module.exports = createAuthenticationMiddleware = (papers) => {
     if(redirectOnFailureUrl){
       redirect(redirectOnFailureUrl, res.statusCode);
     }
-
     res.end(http.STATUS_CODES[res.statusCode]);
   }
 };

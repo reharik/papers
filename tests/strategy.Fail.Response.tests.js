@@ -7,14 +7,14 @@ var expect = chai.expect;
 chai.should();
 
 describe('FAIL_RESPONSE', () => {
-  describe('when_no_strategy_is_successful_and_no_specific_errors', () => {
+  describe('when_fail_is_called_by_strategy', () => {
     let SUT = undefined;
     let req;
     let res;
     beforeEach(() => {
       req = request();
       res = response();
-      var myStrategy = strategy({type:'fail', details:{message:'something went wrong!'}});
+      var myStrategy = strategy({type:'fail', details:{error:'something went wrong!'}});
       var config = {
         strategies: [myStrategy]
       };
@@ -27,7 +27,7 @@ describe('FAIL_RESPONSE', () => {
     });
 
     it('should_set_res_header_WWWW-Authenticate_to_error_message', () => {
-      res.getHeader('WWW-Authenticate')[0].should.equal('something went wrong');
+      res.getHeader('WWW-Authenticate')[0].should.equal('something went wrong!');
     });
 
     it('should_call_res.end', () => {
@@ -36,7 +36,7 @@ describe('FAIL_RESPONSE', () => {
 
   });
 
-  describe('when_no_strategy_is_successful_and_no_specific_errors_and_fail_with_error', () => {
+  describe('when_fail_is_called_by_strategy_and_fail_with_error_specified', () => {
     let SUT = undefined;
     let req;
     let res;
@@ -44,7 +44,7 @@ describe('FAIL_RESPONSE', () => {
     beforeEach(() => {
       req = request();
       res = response();
-      var myStrategy = strategy({type:'fail', details:{message:'something went wrong!'}});
+      var myStrategy = strategy({type:'fail', details:{error:'something went wrong!'}});
       var config = {
         strategies: [myStrategy],
         failWithError: true
@@ -61,7 +61,7 @@ describe('FAIL_RESPONSE', () => {
     });
 
     it('should_call_next_poper_error_message', () => {
-      nextArg.message.should.equal('something went wrong!');
+      nextArg.message.should.equal('Unauthorized');
     });
 
     it('should_set_res_header_WWWW-Authenticate_to_error_message', () => {
@@ -69,14 +69,14 @@ describe('FAIL_RESPONSE', () => {
     });
   });
 
-  describe('when_no_strategy_is_successful_and_no_specific_errors_and_failureRedirect', () => {
+  describe('when_fail_is_called_by_strategy_and_failureRedirect', () => {
     let SUT = undefined;
     let req;
     let res;
     beforeEach(() => {
       req = request();
       res = response();
-      var myStrategy = strategy({type:'fail', details:{message:'something went wrong!'}});
+      var myStrategy = strategy({type:'fail', details:{error:'something went wrong!'}});
       var config = {
         strategies: [myStrategy],
         failureRedirect: 'some.url'
