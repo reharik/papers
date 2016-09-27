@@ -17,6 +17,8 @@ module.exports = createAuthenticationMiddleware = (papers) => {
   };
 
   const standardizeErrors = (result) => {
+    const status = result.details.status ? result.details.status : result.type === "fail"? 401 : 500;
+
     if (typeof result.details === 'string') {
       return {
         errorMessage: result.details.error,
@@ -35,7 +37,7 @@ module.exports = createAuthenticationMiddleware = (papers) => {
     if (typeof result.details.error === 'string') {
       return {
         errorMessage: result.details.error,
-        status: result.details.status || result.type === 'fail' ? 401 : 500,
+        status: status,
         exception:result. details.error
       }
     }
@@ -89,9 +91,6 @@ module.exports = createAuthenticationMiddleware = (papers) => {
         case 'fail':
         {
           // details here is {error, status}
-
-          //TODO validate that details is in correct format
-          //TODO stragegy for deailing with different error types
           failures.push(standardizeErrors(result));
           break;
         }
@@ -101,8 +100,8 @@ module.exports = createAuthenticationMiddleware = (papers) => {
         }
         case 'error':
         {
-          if(papers.options.customHandler) {
-            papers.options.customHandler(result);
+          if(papers.functions.customHandler) {
+            papers.functions.customHandler(result);
             return next(result.error);
           }
           //TODO validate that details is in correct format
@@ -112,8 +111,8 @@ module.exports = createAuthenticationMiddleware = (papers) => {
         }
         case 'success':
         {
-          if(papers.options.customHandler) {
-            papers.options.customHandler(result);
+          if(papers.functions.customHandler) {
+            papers.functions.customHandler(result);
             return next();
           }
 
@@ -167,8 +166,8 @@ module.exports = createAuthenticationMiddleware = (papers) => {
       .map(failure => failure.errorMessage);
     res.statusCode = failures.map(function(f) { return f.status; }).reduce((prev, curr) => prev < curr ? curr:prev, 401 );
 
-    if(papers.options.customHandler) {
-      papers.options.customHandler({type:'fail', details: {errorMessage: errorMessages[0], statusCode: http.STATUS_CODES[res.statusCode]}});
+    if(papers.functions.customHandler) {
+      papers.functions.customHandler({type:'fail', details: {errorMessage: errorMessages[0], statusCode: http.STATUS_CODES[res.statusCode]}});
       return next();
     }
     if (res.statusCode == 401 && errorMessages.length) {

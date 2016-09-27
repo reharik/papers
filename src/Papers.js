@@ -118,6 +118,7 @@ module.exports = function() {
           serializers: config.serializers,
           deserializers: config.deserializers,
           infoTransformers: config.infoTransformers,
+          customHandler: config.customHandler,
           logIn,
           logOut,
           isAuthenticated,
