@@ -20,14 +20,14 @@ module.exports = createAuthenticationMiddleware = (papers) => {
     if (typeof details === 'string') {
       return {
         errorMessage: details,
-        status: 500
+        status: details.type === 'fail' ? 401 : 500
       }
     }
 
     if (typeof details.error === 'Error') {
       return {
         errorMessage: details.error.message,
-        status: details.status || 500,
+        status: details.status || details.type === 'fail' ? 401 : 500,
         exception: details.error
       }
     }
@@ -35,7 +35,7 @@ module.exports = createAuthenticationMiddleware = (papers) => {
     if (typeof details.error === 'string') {
       return {
         errorMessage: details.error,
-        status: details.status || 500,
+        status: details.status || details.type === 'fail' ? 401 : 500,
         exception: details.error
       }
     }
@@ -165,7 +165,7 @@ module.exports = createAuthenticationMiddleware = (papers) => {
         && failure.errorMessage
         && typeof failure.errorMessage === 'string')
       .map(failure => failure.errorMessage);
-    res.statusCode = failures.map(function(f) { return f.status; }).reduce((prev, curr) => prev || curr, 401 );
+    res.statusCode = failures.map(function(f) { return f.status; }).reduce((prev, curr) => prev < curr ? curr:prev, 401 );
 
     if(papers.options.customHandler) {
       papers.options.customHandler({type:'fail', details: {errorMessage: errorMessages[0], statusCode: http.STATUS_CODES[res.statusCode]}});

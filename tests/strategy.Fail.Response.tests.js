@@ -14,7 +14,7 @@ describe('FAIL_RESPONSE', () => {
     beforeEach(() => {
       req = request();
       res = response();
-      var myStrategy = strategy({type:'fail', details:{error:'something went wrong!'}});
+      var myStrategy = strategy({type:'fail', details:{error:'auth failed'}});
       var config = {
         strategies: [myStrategy]
       };
@@ -27,7 +27,7 @@ describe('FAIL_RESPONSE', () => {
     });
 
     it('should_set_res_header_WWWW-Authenticate_to_error_message', () => {
-      res.getHeader('WWW-Authenticate')[0].should.equal('something went wrong!');
+      res.getHeader('WWW-Authenticate')[0].should.equal('auth failed');
     });
 
     it('should_call_res.end', () => {
@@ -44,7 +44,7 @@ describe('FAIL_RESPONSE', () => {
     beforeEach(() => {
       req = request();
       res = response();
-      var myStrategy = strategy({type:'fail', details:{error:'something went wrong!'}});
+      var myStrategy = strategy({type:'fail', details:{error:'auth failed'}});
       var config = {
         strategies: [myStrategy],
         failWithError: true
@@ -65,7 +65,7 @@ describe('FAIL_RESPONSE', () => {
     });
 
     it('should_set_res_header_WWWW-Authenticate_to_error_message', () => {
-      res.getHeader('WWW-Authenticate')[0].should.equal('something went wrong!');
+      res.getHeader('WWW-Authenticate')[0].should.equal('auth failed');
     });
   });
 
@@ -76,7 +76,7 @@ describe('FAIL_RESPONSE', () => {
     beforeEach(() => {
       req = request();
       res = response();
-      var myStrategy = strategy({type:'fail', details:{error:'something went wrong!'}});
+      var myStrategy = strategy({type:'fail', details:{error:'auth failed'}});
       var config = {
         strategies: [myStrategy],
         failureRedirect: 'some.url'
@@ -99,7 +99,7 @@ describe('FAIL_RESPONSE', () => {
     });
 
     it('should_set_res_header_WWWW-Authenticate_to_error_message', () => {
-      res.getHeader('WWW-Authenticate')[0].should.equal('something went wrong!');
+      res.getHeader('WWW-Authenticate')[0].should.equal('auth failed');
     });
 
     it('should_call_res.end', () => {
