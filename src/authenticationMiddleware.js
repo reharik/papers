@@ -14,29 +14,29 @@ module.exports = createAuthenticationMiddleware = (papers) => {
         return strat;
       }
     }
-  }
+  };
 
-  const standardizeErrors = (details) => {
-    if (typeof details === 'string') {
+  const standardizeErrors = (result) => {
+    if (typeof result.details === 'string') {
       return {
-        errorMessage: details,
-        status: details.type === 'fail' ? 401 : 500
+        errorMessage: result.details.error,
+        status: result.type === 'fail' ? 401 : 500
       }
     }
 
-    if (typeof details.error === 'Error') {
+    if (typeof result.details.error === 'Error') {
       return {
-        errorMessage: details.error.message,
-        status: details.status || details.type === 'fail' ? 401 : 500,
-        exception: details.error
+        errorMessage: result.details.error.message,
+        status: result.details.status || result.type === 'fail' ? 401 : 500,
+        exception: result.details.error
       }
     }
 
-    if (typeof details.error === 'string') {
+    if (typeof result.details.error === 'string') {
       return {
-        errorMessage: details.error,
-        status: details.status || details.type === 'fail' ? 401 : 500,
-        exception: details.error
+        errorMessage: result.details.error,
+        status: result.details.status || result.type === 'fail' ? 401 : 500,
+        exception:result. details.error
       }
     }
   }
@@ -92,7 +92,7 @@ module.exports = createAuthenticationMiddleware = (papers) => {
 
           //TODO validate that details is in correct format
           //TODO stragegy for deailing with different error types
-          failures.push(standardizeErrors(result.details));
+          failures.push(standardizeErrors(result));
           break;
         }
         case 'redirect':
@@ -107,7 +107,7 @@ module.exports = createAuthenticationMiddleware = (papers) => {
           }
           //TODO validate that details is in correct format
           //TODO stragegy for deailing with different error types
-          return next(standardizeErrors(result.details));
+          return next(standardizeErrors(result));
           break;
         }
         case 'success':
