@@ -16,6 +16,7 @@ module.exports = function response() {
   };
 
   var end = function (data, encoding) {
+
     if (data) {
       this._data += data;
     }

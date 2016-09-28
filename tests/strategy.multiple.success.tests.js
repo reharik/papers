@@ -5,13 +5,13 @@ var strategy = require('./helpers/testStrategy');
 var chai = require('chai');
 var expect = chai.expect;
 chai.should();
-
+ 
 describe('MULTIPLE_SUCCESS_RESPONSES', () => {
   describe('when_multiple_strategies_would_call_success', () => {
     let SUT = undefined;
     let req;
     let res;
-    beforeEach(() => {
+    beforeEach((done) => {
       req = request();
       res = response();
       var myStrategy = strategy({type:'success', details:{user:{name:'frank'}}});
@@ -24,6 +24,7 @@ describe('MULTIPLE_SUCCESS_RESPONSES', () => {
       };
       SUT = papers().registerMiddleware(config);
       SUT(req, res, ()=>{});
+      setTimeout(done,10);
     });
 
     it('should_set_res_status_to_200', () => {
@@ -40,7 +41,7 @@ describe('MULTIPLE_SUCCESS_RESPONSES', () => {
     let SUT = undefined;
     let req;
     let res;
-    beforeEach(() => {
+    beforeEach((done) => {
       req = request();
       res = response();
       var myStrategy = strategy({type:'fail', details:{error:'something went wrong!', status:402}});
@@ -51,6 +52,7 @@ describe('MULTIPLE_SUCCESS_RESPONSES', () => {
       };
       SUT = papers().registerMiddleware(config);
       SUT(req, res, ()=>{});
+      setTimeout(done,10);
     });
 
     it('should_set_res_status_to_200', () => {
@@ -70,7 +72,7 @@ describe('MULTIPLE_SUCCESS_RESPONSES', () => {
     let SUT = undefined;
     let req;
     let res;
-    beforeEach(() => {
+    beforeEach((done) => {
       req = request();
       res = response();
       var myStrategy = strategy({type:'pass'});
@@ -82,6 +84,7 @@ describe('MULTIPLE_SUCCESS_RESPONSES', () => {
       };
       SUT = papers().registerMiddleware(config);
       SUT(req, res, ()=>{});
+      setTimeout(done,10);
     });
 
     it('should_set_res_status_to_200', () => {

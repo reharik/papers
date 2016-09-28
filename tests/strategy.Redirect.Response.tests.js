@@ -13,7 +13,7 @@ describe('REDIRECT_RESPONSE', () => {
     let SUT = undefined;
     let req;
     let res;
-    beforeEach(() => {
+    beforeEach((done) => {
       req = request();
       res = response();
       var myStrategy = strategy({type:'redirect', details:{ url: 'some.url', status: 302}});
@@ -22,6 +22,8 @@ describe('REDIRECT_RESPONSE', () => {
       };
       SUT = papers().registerMiddleware(config);
       SUT(req, res);
+      setTimeout(done,10);
+
     });
 
     it('should_set_res_status_to_302', () => {

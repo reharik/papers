@@ -11,7 +11,7 @@ describe('PASS_RESPONSE', () => {
     let SUT = undefined;
     let req;
     let res;
-    beforeEach(() => {
+    beforeEach((done) => {
       req = request();
       res = response();
       var myStrategy = strategy({type:'pass'});
@@ -20,6 +20,8 @@ describe('PASS_RESPONSE', () => {
       };
       SUT = papers().registerMiddleware(config);
       SUT(req, res);
+            setTimeout(done,10);
+
     });
 
     it('should_set_res_status_to_401', () => {
@@ -41,7 +43,7 @@ describe('PASS_RESPONSE', () => {
     let req;
     let res;
     let nextArg;
-    beforeEach(() => {
+    beforeEach((done) => {
       req = request();
       res = response();
       var myStrategy = strategy({type:'pass'});
@@ -54,6 +56,7 @@ describe('PASS_RESPONSE', () => {
       };
       SUT = papers().registerMiddleware(config);
       SUT(req, res, next);
+      setTimeout(done,10);
     });
 
     it('should_call_next_with_proper_arg', () => {
@@ -73,7 +76,7 @@ describe('PASS_RESPONSE', () => {
     let SUT = undefined;
     let req;
     let res;
-    beforeEach(() => {
+    beforeEach((done) => {
       req = request();
       res = response();
       var myStrategy = strategy({type:'pass'});
@@ -84,6 +87,7 @@ describe('PASS_RESPONSE', () => {
       
       SUT = papers().registerMiddleware(config);
       SUT(req, res);
+      setTimeout(done,10);
     });
 
     it('should_call_next_with_proper_arg', () => {

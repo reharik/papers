@@ -13,7 +13,7 @@ describe('ERROR_RESPONSE', () => {
     let req;
     let res;
     let nextArg;
-    beforeEach(() => {
+    beforeEach((done) => {
       req = request();
       res = response();
       var next = (arg) => {
@@ -25,6 +25,7 @@ describe('ERROR_RESPONSE', () => {
       };
       SUT = papers().registerMiddleware(config);
       SUT(req, res, next);
+      setTimeout(done,0);
     });
 
     it('should_call_next_with_error', () => {

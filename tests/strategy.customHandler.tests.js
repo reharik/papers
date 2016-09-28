@@ -13,7 +13,7 @@ describe('CUSTOM_HANDLER', () => {
     let res;
     let nextArg;
     let customHandlerArg;
-    beforeEach(() => {
+    beforeEach((done) => {
       req = request();
       res = response();
       var myStrategy = strategy( {type: 'fail', details: {error:'failed auth'}});
@@ -25,6 +25,7 @@ describe('CUSTOM_HANDLER', () => {
       };
       SUT = papers().registerMiddleware(config);
       SUT(req, res, ()=> {nextArg='next called'});
+      setTimeout(done,10);
     });
 
     it('should_pass_result_to_handler', () => {
@@ -46,8 +47,8 @@ describe('CUSTOM_HANDLER', () => {
     let res;
     let nextArg;
     let customHandlerArg;
-    let standardizedResult = {type:'error', details: { errorMessage:'some error', statusCode:500, exception:'some error'}};
-    beforeEach(() => {
+    let standardizedResult = { errorMessage:'some error', statusCode:500, exception:'some error'};
+    beforeEach((done) => {
       req = request();
       res = response();
       var myStrategy = strategy( {type: 'error', details: {error:'some error'}});
@@ -59,6 +60,7 @@ describe('CUSTOM_HANDLER', () => {
       };
       SUT = papers().registerMiddleware(config);
       SUT(req, res, (arg)=> {nextArg=arg});
+      setTimeout(done,10);
     });
 
     it('should_pass_result_to_handler', () => {
@@ -82,7 +84,7 @@ describe('CUSTOM_HANDLER', () => {
     let customHandlerArg;
     let user;
     let result;
-    beforeEach(() => {
+    beforeEach((done) => {
       req = request();
       res = response();
       user = {name: 'bubba'};
@@ -96,6 +98,7 @@ describe('CUSTOM_HANDLER', () => {
       };
       SUT = papers().registerMiddleware(config);
       SUT(req, res, (arg)=> {nextArg='next called'});
+      setTimeout(done,10);
     });
 
     it('should_pass_result_to_handler', () => {

@@ -14,7 +14,7 @@ describe('SUCCESS_RESPONSE', () => {
     let res;
     let nextArg;
     let user;
-    beforeEach(() => {
+    beforeEach((done) => {
       req = request();
       res = response();
       var next = (arg) => {
@@ -27,6 +27,7 @@ describe('SUCCESS_RESPONSE', () => {
       };
       SUT = papers().registerMiddleware(config);
       SUT(req, res, next);
+      setTimeout(done,10);
     });
 
     it('should_put_user_on_req', () => {
@@ -44,7 +45,7 @@ describe('SUCCESS_RESPONSE', () => {
     let res;
     let nextArg;
     let user;
-    beforeEach(() => {
+    beforeEach((done) => {
       req = request();
       res = response();
       var next = (arg) => {
@@ -60,6 +61,7 @@ describe('SUCCESS_RESPONSE', () => {
 
       SUT = papers().registerMiddleware(config);
       SUT(req, res, next);
+      setTimeout(done,10);
     });
 
     it('should_put_user_on_req', () => {
@@ -81,7 +83,7 @@ describe('SUCCESS_RESPONSE', () => {
     let res;
     let nextArg;
     let user;
-    beforeEach(() => {
+    beforeEach((done) => {
       req = request();
       res = response();
       var next = (arg) => {
@@ -97,6 +99,7 @@ describe('SUCCESS_RESPONSE', () => {
 
       SUT = papers().registerMiddleware(config);
       SUT(req, res, next);
+      setTimeout(done,10);
     });
 
     it('should_put_user_on_req', () => {
@@ -118,8 +121,8 @@ describe('SUCCESS_RESPONSE', () => {
       res.endWasCalled.should.be.true
     });
 
-    it('should_call_next', () => {
-      nextArg.should.eql('calledNext')
+    it('should_call_end', () => {
+      res.endWasCalled.should.be.true;
     });
   });
 
@@ -129,7 +132,7 @@ describe('SUCCESS_RESPONSE', () => {
     let res;
     let nextArg;
     let user;
-    beforeEach(() => {
+    beforeEach((done) => {
       req = request();
       res = response();
       var next = (arg) => {
@@ -146,6 +149,7 @@ describe('SUCCESS_RESPONSE', () => {
 
       SUT = papers().registerMiddleware(config);
       SUT(req, res, next);
+      setTimeout(done,10);
     });
 
     it('should_put_user_on_req', () => {
@@ -159,8 +163,8 @@ describe('SUCCESS_RESPONSE', () => {
       res.endWasCalled.should.be.true
     });
 
-    it('should_call_next', () => {
-      nextArg.should.eql('calledNext')
+    it('should_call_end', () => {
+      res.endWasCalled.should.be.true;
     });
   });
 
@@ -170,7 +174,7 @@ describe('SUCCESS_RESPONSE', () => {
     let res;
     let nextArg;
     let user;
-    beforeEach(() => {
+    beforeEach((done) => {
       req = request();
       res = response();
       var next = (arg) => {
@@ -187,6 +191,7 @@ describe('SUCCESS_RESPONSE', () => {
 
       SUT = papers().registerMiddleware(config);
       SUT(req, res, next);
+      setTimeout(done,10);
     });
 
     it('should_allow_return_to_to_take_precedence', () => {
