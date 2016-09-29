@@ -9,7 +9,7 @@ app.use(strat);
 
 app.get("/", function(req, res) {
   console.log('==========req=========');
-  // console.log(res);
+  console.log(req.user);
   console.log('==========END req=========');
   console.log('==========req.isAuthenticated=========');
   console.log(req.isAuthenticated());

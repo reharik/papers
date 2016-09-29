@@ -84,7 +84,7 @@ var error = (app) => {
 
 var failTwice = () => {
     var strategy = testStrategy({type:'fail', details: {error: new Error("wtf! soemthing happened!")}});
-    var strategy2 = testStrategy({type:'fail', details: {error: new Error("wtf! soemthing happened! again!!!"), statusCode:402}});
+    var strategy2 = testStrategy({type:'fail', details: {error: new Error("wtf! soemthing happened! again!!!"), statusCode:401}});
 
     var papersConfig = {
         strategies: [strategy, strategy2]
@@ -93,9 +93,10 @@ var failTwice = () => {
     return papers(papersConfig).registerMiddleware(papersConfig);
 };
 
+//XXX TODO no sure this one is working.  it's still putting two messages on the response
 var failWithError = () => {
     var strategy = testStrategy({type:'fail', details: {error: new Error("wtf! soemthing happened!")}});
-    var strategy2 = testStrategy({type:'fail', details: {error: new Error("wtf! soemthing happened! again!!!"), statusCode:402}});
+    var strategy2 = testStrategy({type:'fail', details: {error: new Error("wtf! soemthing happened! again!!!"), statusCode:401}});
 
     var papersConfig = {
         strategies: [strategy, strategy2],
