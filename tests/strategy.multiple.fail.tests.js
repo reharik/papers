@@ -53,9 +53,9 @@ describe('MULTIPLE_FAIL_RESPONSES', () => {
     beforeEach((done) => {
       req = request();
       res = response();
-      var myStrategy = strategy({type:'fail', details:{error:'something went wrong!', status:402}});
-      var myStrategy1 = strategy({type:'fail', details:{error:'something went wrong!1', status:500}});
-      var myStrategy2 = strategy({type:'fail', details:{error:'something went wrong!2', status:502}});
+      var myStrategy = strategy({type:'fail', details:{error:'something went wrong!', statusCode:402}});
+      var myStrategy1 = strategy({type:'fail', details:{error:'something went wrong!1', statusCode:500}});
+      var myStrategy2 = strategy({type:'fail', details:{error:'something went wrong!2', statusCode:502}});
       var config = {
         strategies: [myStrategy, myStrategy1, myStrategy2],
         failWithError: true

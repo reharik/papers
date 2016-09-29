@@ -36,7 +36,7 @@ module.exports = createAuthenticationMiddleware = (papers) => {
         if (!stratResult || !stratResult.type) {
           continue
         }
-        
+
         switch (stratResult.type) {
           case 'fail':
           {
@@ -63,7 +63,9 @@ module.exports = createAuthenticationMiddleware = (papers) => {
         case 'customHandler': {
           return papers.functions.customHandler(result.value);
         }
-        case 'error':
+        case 'error': {
+          return next(result.value.exception);
+        }
         case 'fail': {
           return next(result.value);
         }
@@ -78,7 +80,7 @@ module.exports = createAuthenticationMiddleware = (papers) => {
       console.log('==========ex=========');
       console.log(ex);
       console.log('==========END ex=========');
-      throw ex;
+      return res.end(`${http.STATUS_CODES[500]} \n ${ex.message} \n ${ex}`);
     })
   }
 };

@@ -4,8 +4,8 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "test": "mocha tests/*",
-    "intTest": "node integrationTests/express.tests.js"
+    "test": "mocha --watch tests/*",
+    "intTest": "nodemon integrationTests/express.tests.js"
   },
   "author": "",
   "license": "ISC",
@@ -14,6 +14,7 @@
     "chai-as-promised": "^6.0.0",
     "express": "^4.14.0",
     "mocha": "^3.0.2",
+    "nodemon": "^1.10.2",
     "papers-local": "reharik/papers-local"
   },
   "dependencies": {

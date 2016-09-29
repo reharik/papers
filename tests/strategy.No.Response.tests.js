@@ -91,7 +91,7 @@ describe('NO_RESPONSE', () => {
     });
 
     it('should_call_next_with_proper_arg', () => {
-      res.statusCode.should.equal(401);
+      res.statusCode.should.equal(302);
     });
 
     it('should_put_proper_url_on_location_header', () => {

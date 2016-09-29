@@ -60,24 +60,24 @@ describe('AUTHENTICATION', () => {
     let req;
     let res;
     let user;
-    beforeEach(() => {
+    beforeEach((done) => {
       user = { name: 'bubba' };
       req = request({'papers':{user}});
       res = response();
       var myStrategy = strategy({type:'pass'});
       var config = {
         strategies:[myStrategy],
-        serializers:[()=>{}],
+        serializers:[()=>{ Promise.resolve()}],
         deserializers:[(user)=>{return user;}],
         useSession: true
       };
       SUT = papers().registerMiddleware(config);
 
       SUT(req, res, ()=>{});
+      setTimeout(done,10);
     });
 
     it('should_put_user_on_res', () => {
-
       req.user.should.eql(user);
     })
   });
@@ -87,7 +87,7 @@ describe('AUTHENTICATION', () => {
     let req;
     let res;
     let user;
-    beforeEach(() => {
+    beforeEach((done) => {
       user = { name: 'bubba' };
       req = request({'papers':{user}});
       res = response();
@@ -101,6 +101,7 @@ describe('AUTHENTICATION', () => {
       SUT = papers().registerMiddleware(config);
 
       SUT(req, res, ()=>{});
+      setTimeout(done,10);
     });
 
     it('should_remove_user_from_session', () => {
@@ -113,7 +114,7 @@ describe('AUTHENTICATION', () => {
     let req;
     let res;
     let user;
-    beforeEach(() => {
+    beforeEach((done) => {
       user = { name: 'bubba' };
       req = request({'papers':{user}});
       res = response();
@@ -125,7 +126,7 @@ describe('AUTHENTICATION', () => {
         useSession: true
       };
       SUT = papers().registerMiddleware(config);
-
+      setTimeout(done,10);
     });
 
     it('should_throw_propper_error', () => {

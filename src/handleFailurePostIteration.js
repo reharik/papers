@@ -11,6 +11,7 @@ module.exports = (failures, res, papers) => {
       && failure.errorMessage
       && typeof failure.errorMessage === 'string')
     .map(failure => failure.errorMessage);
+
   res.statusCode = failures.map(function (f) {
     return f.statusCode;
   }).reduce((prev, curr) => prev < curr ? curr : prev, 401);
@@ -25,6 +26,7 @@ module.exports = (failures, res, papers) => {
       }
     };
   }
+
   if (res.statusCode == 401 && errorMessages.length) {
     res.setHeader('WWW-Authenticate', errorMessages);
   }
@@ -32,10 +34,9 @@ module.exports = (failures, res, papers) => {
   if (papers.options.failWithError) {
     return {type: 'fail', value: new Error(http.STATUS_CODES[res.statusCode])};
   }
-
   const redirectOnFailureUrl = papers.options.failureRedirect;
   if (redirectOnFailureUrl) {
-    redirect(res, redirectOnFailureUrl, res.statusCode);
+    redirect(res, redirectOnFailureUrl);
     return {type: 'redirect'};
   }
 

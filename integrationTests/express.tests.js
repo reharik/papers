@@ -1,35 +1,15 @@
 var express = require('express');
 var app = express();
-var papersLocal = require('papers-local');
-var papers = require('./../src/Papers');
-
-
-var basicSuccess = () => {
-
-  var strategy = papersLocal(() => {
-    return Promise.resolve({user: {name: 'bubba'}})
-  });
-
-  var papersConfig = {
-    strategies: [strategy]
-  };
-
-  app.use(function (req, res, next) {
-    req.body = {username:'bubba', password:'likesit'};
-    next()
-  });
-
-  return papers(papersConfig).registerMiddleware(papersConfig);
-};
+var setups = require('./setups');
 
 
 
-var strat = basicSuccess();
+var strat = setups.failureRedirect(app);
 app.use(strat);
 
 app.get("/", function(req, res) {
   console.log('==========req=========');
-  console.log(req.user);
+  // console.log(res);
   console.log('==========END req=========');
   console.log('==========req.isAuthenticated=========');
   console.log(req.isAuthenticated());
@@ -38,7 +18,6 @@ app.get("/", function(req, res) {
   console.log('==========logged out req=========');
   console.log(req.user);
   console.log('==========END req=========');
-
 });
 
 app.listen(3000);
