@@ -1,6 +1,5 @@
 const redirect = require('./redirect');
 
-
 module.exports = (stratResult, req, res, papers) => {
   if (papers.functions.customHandler) {
     return {type: 'customHandler', result: 'success', value: stratResult};

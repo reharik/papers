@@ -29,10 +29,10 @@ module.exports = function() {
 
   isAuthenticated = function (req) {
     return function () {
-      if (!req._papers) {
-        return false;
+      if(req.user || req.session && req.session[req._papers.key] && req.session[req._papers.key].user){
+        return true;
       }
-      return (req.session[req._papers.key]) ? true : false;
+      return false;
     };
   };
 
@@ -54,7 +54,6 @@ module.exports = function() {
       } catch (e) {
         throw(e);
       }
-
     }
   };
 

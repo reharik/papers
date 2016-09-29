@@ -8,8 +8,8 @@ module.exports = (failures, res, papers) => {
   }
 
   var errorMessages = failures.filter(failure => failure
-  && failure.errorMessage
-  && typeof failure.errorMessage === 'string')
+      && failure.errorMessage
+      && typeof failure.errorMessage === 'string')
     .map(failure => failure.errorMessage);
   res.statusCode = failures.map(function (f) {
     return f.statusCode;
@@ -28,6 +28,7 @@ module.exports = (failures, res, papers) => {
   if (res.statusCode == 401 && errorMessages.length) {
     res.setHeader('WWW-Authenticate', errorMessages);
   }
+  
   if (papers.options.failWithError) {
     return {type: 'fail', value: new Error(http.STATUS_CODES[res.statusCode])};
   }

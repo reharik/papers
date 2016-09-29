@@ -4,14 +4,17 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "test": "mocha tests/*"
+    "test": "mocha tests/*",
+    "intTest": "node integrationTests/express.tests.js"
   },
   "author": "",
   "license": "ISC",
   "devDependencies": {
     "chai": "^3.5.0",
     "chai-as-promised": "^6.0.0",
-    "mocha": "^3.0.2"
+    "express": "^4.14.0",
+    "mocha": "^3.0.2",
+    "papers-local": "reharik/papers-local"
   },
   "dependencies": {
     "co": "^4.6.0"

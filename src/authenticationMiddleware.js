@@ -2,8 +2,9 @@ const http = require('_http_server');
 const co = require('co');
 const handleFailurePostIteration = require('./handleFailurePostIteration');
 const handleSuccess = require('./handleSuccess');
-const instantiateStrategy = require('./instantiateStrategy');
+const handleError = require('./handleError');
 const standardizeErrors = require('./standardizeErrors');
+
 const redirect = require('./redirect');
 const checkSessionForAuth = require('./checkSessionForAuth');
 
@@ -12,7 +13,7 @@ module.exports = createAuthenticationMiddleware = (papers) => {
 
   return (req, res, next) => {
     /********* add convenience methods to req *************/
-    req.logOut = papers.functions.logOut(req, {userProperty: papers.options.userProperty, key: papers.options.key});
+    req.logOut = papers.functions.logOut(req, papers.options.userProperty, papers.options.key);
     req.isAuthenticated = papers.functions.isAuthenticated(req);
 
     /********* check session for auth *************/
@@ -21,27 +22,21 @@ module.exports = createAuthenticationMiddleware = (papers) => {
     }
 
     co(function *iterateStrategies() {
+      let failures = [];
 
       /********* iterate strategies *************/
-      let failures = [];
-      for (let _strategy of papers.functions.strategies) {
+      for (let strategy of papers.functions.strategies) {
 
-        const strategy = instantiateStrategy(_strategy);
         if (!strategy) {
           continue;
         }
 
         var authenticate = strategy.authenticate(req, papers);
-
-        // console.log('==========typeof authenticate.then === "function"=========');
-        // console.log(typeof authenticate.then === 'function');
-        // console.log('==========END typeof authenticate.then === "function"=========');
-
         const stratResult = authenticate && typeof authenticate.then === 'function' ? yield authenticate : authenticate;
         if (!stratResult || !stratResult.type) {
           continue
         }
-
+        
         switch (stratResult.type) {
           case 'fail':
           {
@@ -54,12 +49,7 @@ module.exports = createAuthenticationMiddleware = (papers) => {
           }
           case 'error':
           {
-            const standardizedError = standardizeErrors(stratResult);
-            if (papers.functions.customHandler) {
-              return {type: 'customHandler', result: 'error', value: standardizedError};
-            }
-            // return next(standardizedError);
-            return {type: 'error', value: standardizedError};
+            return handleError(stratResult, papers);
           }
           case 'success':
           {
