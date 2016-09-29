@@ -126,17 +126,12 @@ describe('AUTHENTICATION', () => {
         useSession: true
       };
       SUT = papers().registerMiddleware(config);
+      result = SUT(req, res, ()=>{});
       setTimeout(done,10);
     });
 
-    it('should_throw_propper_error', () => {
-      let result;
-      try{
-        result = SUT(req, res, ()=>{});
-      } catch(ex) {
-        result = ex.message;
-      }
-      result.should.equal('Error thrown during deserialization of user.')
+    it('should_return_500_with_the_error', () => {
+      res.body.should.contain('Error thrown during deserialization of user.')
     })
   });
 

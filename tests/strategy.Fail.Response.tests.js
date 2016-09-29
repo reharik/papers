@@ -59,7 +59,7 @@ describe('FAIL_RESPONSE', () => {
     });
 
     it('should_call_next_poper_error_message', () => {
-      nextArg.should.eql({Error:'Unauthorized'});
+      nextArg.should.eql(new Error('Unauthorized'));
     });
 
     it('should_set_res_header_WWWW-Authenticate_to_error_message', () => {

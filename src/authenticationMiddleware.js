@@ -17,11 +17,14 @@ module.exports = createAuthenticationMiddleware = (papers) => {
     req.isAuthenticated = papers.functions.isAuthenticated(req);
 
     /********* check session for auth *************/
-    if(checkSessionForAuth(papers, req)) {
-      return next();
-    }
 
     co(function *iterateStrategies() {
+
+      const checkSession = yield checkSessionForAuth(papers, req);
+      if(checkSession.isLoggedIn) {
+        return {type:'session'};
+      }
+
       let failures = [];
 
       /********* iterate strategies *************/
@@ -80,6 +83,7 @@ module.exports = createAuthenticationMiddleware = (papers) => {
       console.log('==========ex=========');
       console.log(ex);
       console.log('==========END ex=========');
+      res.statusCode = 500;
       return res.end(`${http.STATUS_CODES[500]} \n ${ex.message} \n ${ex}`);
     })
   }
