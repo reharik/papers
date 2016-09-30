@@ -1,7 +1,7 @@
 
 module.exports = function(result) {
     var authenticate = function () {
-      return result;
+        return result;
     };
     return {
       authenticate

@@ -37,7 +37,7 @@ describe('FAIL_RESPONSE', () => {
 
   });
 
-  describe('when_fail_is_called_by_strategy_and_fail_with_error_specified', () => {
+  describe('when_fail_is_called_by_strategy_and_failWithError_specified', () => {
     let SUT = undefined;
     let req;
     let res;
@@ -58,12 +58,8 @@ describe('FAIL_RESPONSE', () => {
       setTimeout(done,10);
     });
 
-    it('should_call_next_with_proper_arg', () => {
-      nextArg.should.be.a('Error');
-    });
-
     it('should_call_next_poper_error_message', () => {
-      nextArg.message.should.equal('Unauthorized');
+      nextArg.should.eql(new Error('Unauthorized'));
     });
 
     it('should_set_res_header_WWWW-Authenticate_to_error_message', () => {
@@ -90,7 +86,7 @@ describe('FAIL_RESPONSE', () => {
     });
 
     it('should_call_next_with_proper_arg', () => {
-      res.statusCode.should.equal(401);
+      res.statusCode.should.equal(302);
     });
 
     it('should_put_proper_url_on_location_header', () => {

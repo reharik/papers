@@ -4,9 +4,9 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "test": "mocha tests/*",
-    "test2": "mocha integrationTests/express.tests.js",
-    "intTest": "node integrationTests/express.tests.js"
+    "test": "mocha --watch tests/*",
+    "test2": "mocha integrationTests/*.tests.js",
+    "intTest": "nodemon integrationTests/express.tests.js"
   },
   "author": "",
   "license": "ISC",
@@ -17,7 +17,8 @@
     "mocha": "^3.0.2",
     "papers-local": "reharik/papers-local",
     "request": "^2.75.0",
-    "supertest": "^2.0.0"
+    "supertest": "^2.0.0",
+    "nodemon": "^1.10.2"
   },
   "dependencies": {
     "co": "^4.6.0"

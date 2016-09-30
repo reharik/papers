@@ -29,7 +29,10 @@ describe('ERROR_RESPONSE', () => {
     });
 
     it('should_call_next_with_error', () => {
-      nextArg.errorMessage.should.equal('some error')
+      console.log('==========nextArg=========');
+      console.log(nextArg);
+      console.log('==========END nextArg=========');
+      nextArg.should.equal('some error')
     });
 
     it('should_not_call_end', () => {

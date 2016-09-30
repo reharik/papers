@@ -1,36 +1,19 @@
 var express = require('express');
-var app = express();
-var papersLocal = require('papers-local');
-var papers = require('./../src/Papers');
+var setups = require('./setups');
 var request = require('supertest');
 
 var chai = require('chai');
 var expect = chai.expect;
 chai.should();
 
-var basicSuccess = (app) => {
-
-  var strategy = papersLocal(() => {
-    return Promise.resolve({user: {name: 'bubba'}})
-  });
-
-  var papersConfig = {
-    strategies: [strategy]
-  };
-
-  app.use(function (req, res, next) {
-    req.body = {username:'bubba', password:'likesit'};
-    next()
-  });
-
-  return papers(papersConfig).registerMiddleware(papersConfig);
-};
 
 describe('SUCCESS', ()=> {
   describe('when_stratedy_is_successful', ()=> {
     var SUTRequest;
+    let app;
     before(() => {
-      app.use(basicSuccess(app));
+      app = express();
+      app.use(setups.basicSuccess(app));
       app.get("/", function (req, res) {
         SUTRequest = req;
         res.send("end");

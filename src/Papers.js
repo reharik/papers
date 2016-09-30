@@ -1,3 +1,4 @@
+const co = require('co');
 var createAuthenticationMiddleware = require('./authenticationMiddleware');
 
 module.exports = function() {
@@ -10,11 +11,13 @@ module.exports = function() {
       return;
     }
     
-    try {
-      session.user = papers.functions.serializeUser(user, papers);
-    } catch (err) {
-      throw err
-    }
+    papers.functions.serializeUser(user, papers)
+        .then(result => {
+          session.user = result;
+        })
+        .catch(err => {
+          throw err
+        });
   };
 
   logOut = function (req, userProperty, key) {
@@ -39,41 +42,38 @@ module.exports = function() {
   serializeUser = function (user, papers) {
     // private implementation that traverses the chain of serializers, attempting
     // to serialize a user
-    for (let i = 0; papers.functions.serializers.length; i++) {
-
-      var layer = papers.functions.serializers[i];
-      if (!layer) {
-        throw new Error('Failed to serialize user into session');
-      }
-
-      try {
-        const result = layer(user);
-        if (result !== 'pass') {
-          return result;
+    return co(function *iterateStrategies() {
+      for (strategy of papers.functions.serializers) {
+        var result = strategy(user);
+        if (result) {
+          const user = yield result;
+          if (user !== 'pass') {
+            return user;
+          }
         }
-      } catch (e) {
-        throw(e);
       }
-    }
+    }).catch(ex => {
+      throw ex;
+    });
   };
 
   deserializeUser = function (user, papers) {
-    for (let i = 0; papers.functions.deserializers; i++) {
-
-      var layer = papers.functions.deserializers[i];
-      if (!layer) {
-        throw new Error('Failed to serialize user into session');
-      }
-
-      try {
-        const result = layer(user);
-        if (result !== 'pass') {
-          return result;
+    return co(function *iterateStrategies() {
+      for (strategy of papers.functions.deserializers) {
+        if (!strategy) {
+          throw new Error('Failed to serialize user into session');
         }
-      } catch (e) {
-        throw(e);
+        var result = strategy(user);
+        if (result) {
+          const user = yield result;
+          if (user !== 'pass') {
+            return user;
+          }
+        }
       }
-    }
+    }).catch(e => {
+      throw(e);
+    })
   };
 
   transformAuthInfo = function (info, papers) {
@@ -109,8 +109,7 @@ module.exports = function() {
         )){
         throw new Error('You must provide at least one user serializer and one user deserializer if you want to use session.');
       }
-
-      //TODO put some validation in for more of this. 
+      //TODO put some validation in for more of this.
       const papers = {
         functions: {
           strategies: config.strategies,
