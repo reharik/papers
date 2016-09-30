@@ -131,7 +131,8 @@ module.exports = function() {
           key: 'papers',
           failureRedirect: config.failureRedirect,
           successRedirect: config.successRedirect,
-          failWithError: config.failWithError
+          failWithError: config.failWithError,
+          assignProperty: config.assignProperty
         }
       };
       return createAuthenticationMiddleware(papers);

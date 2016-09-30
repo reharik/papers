@@ -20,11 +20,13 @@ module.exports = (stratResult, req, res, papers) => {
   //   req.session.messages.push(typeof msg == 'boolean' ? info.message || info || 'success' : msg);
   // }
   //
-  // /********* assignProperty *************/
-  // if (clientOptions.assignProperty) {
-  //   req[clientOptions.assignProperty] = user;
-  //   return next();
-  // }
+  /********* assignProperty *************/
+  // this seems spurious
+  if (papers.options.assignProperty) {
+    req[papers.options.assignProperty] = user;
+    return {type: 'success'};
+  }
+
   papers.functions.logIn(req, stratResult.details.user, papers);
 
   // /********* authInfo *************/

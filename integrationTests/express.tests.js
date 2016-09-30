@@ -2,9 +2,13 @@ var express = require('express');
 var app = express();
 var papersLocal = require('papers-local');
 var papers = require('./../src/Papers');
+var request = require('supertest');
 
+var chai = require('chai');
+var expect = chai.expect;
+chai.should();
 
-var basicSuccess = () => {
+var basicSuccess = (app) => {
 
   var strategy = papersLocal(() => {
     return Promise.resolve({user: {name: 'bubba'}})
@@ -22,23 +26,24 @@ var basicSuccess = () => {
   return papers(papersConfig).registerMiddleware(papersConfig);
 };
 
+describe('SUCCESS', ()=> {
+  describe('when_stratedy_is_successful', ()=> {
+    var SUTRequest;
+    before(() => {
+      app.use(basicSuccess(app));
+      app.get("/", function (req, res) {
+        SUTRequest = req;
+        res.send("end");
+      });
+    });
 
-
-var strat = basicSuccess();
-app.use(strat);
-
-app.get("/", function(req, res) {
-  console.log('==========req=========');
-  console.log(req.user);
-  console.log('==========END req=========');
-  console.log('==========req.isAuthenticated=========');
-  console.log(req.isAuthenticated());
-  console.log('==========END req=========');
-  req.logOut();
-  console.log('==========logged out req=========');
-  console.log(req.user);
-  console.log('==========END req=========');
-
+    it("should_put_user_on_request", (done) => {
+      request(app)
+        .get('/')
+        .expect((res)=> {
+          SUTRequest.user.name.should.equal('bubba');
+        })
+        .expect(200, done)
+    })
+  })
 });
-
-app.listen(3000);

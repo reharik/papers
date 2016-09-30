@@ -5,6 +5,7 @@
   "main": "index.js",
   "scripts": {
     "test": "mocha tests/*",
+    "test2": "mocha integrationTests/express.tests.js",
     "intTest": "node integrationTests/express.tests.js"
   },
   "author": "",
@@ -14,7 +15,9 @@
     "chai-as-promised": "^6.0.0",
     "express": "^4.14.0",
     "mocha": "^3.0.2",
-    "papers-local": "reharik/papers-local"
+    "papers-local": "reharik/papers-local",
+    "request": "^2.75.0",
+    "supertest": "^2.0.0"
   },
   "dependencies": {
     "co": "^4.6.0"
