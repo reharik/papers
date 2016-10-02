@@ -10,7 +10,6 @@ const checkSessionForAuth = require('./checkSessionForAuth');
 
 
 module.exports = createAuthenticationMiddleware = (papers) => {
-
   return (req, res, next) => {
     /********* add convenience methods to req *************/
     req.logOut = papers.functions.logOut(req, papers.options.userProperty, papers.options.key);
@@ -64,7 +63,7 @@ module.exports = createAuthenticationMiddleware = (papers) => {
     }).then((result) => {
       switch(result.type) {
         case 'customHandler': {
-          return papers.functions.customHandler(result.value);
+          return papers.functions.customHandler(req, res, next(), result.value);
         }
         case 'error': {
           return next(result.value.exception);

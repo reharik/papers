@@ -15,6 +15,7 @@ module.exports = (failures, res, papers) => {
   res.statusCode = failures.map(function (f) {
     return f.statusCode;
   }).reduce((prev, curr) => prev < curr ? curr : prev, 401);
+  
 
   if (papers.functions.customHandler) {
     return {

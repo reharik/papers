@@ -22,10 +22,10 @@ module.exports = (stratResult, req, res, papers) => {
   //
   /********* assignProperty *************/
   // this seems spurious
-  if (papers.options.assignProperty) {
-    req[papers.options.assignProperty] = user;
-    return {type: 'success'};
-  }
+  // if (papers.options.assignProperty) {
+  //   req[papers.options.assignProperty] = user;
+  //   return {type: 'success'};
+  // }
 
   papers.functions.logIn(req, stratResult.details.user, papers);
 

@@ -116,6 +116,40 @@ var failureRedirect = () => {
     return papers().registerMiddleware(papersConfig);
 };
 
+var customHandlerSuccess = () => {
+    var strategy = testStrategy({type:'success', details: {user: {username:'bubba', password:'likesit'}}});
+
+    var papersConfig = {
+        strategies: [strategy],
+        customHandler: (req, res, next, result) => {
+            req.customUser = result.details.user.username;
+        }
+    };
+    return papers().registerMiddleware(papersConfig);
+};
+
+var customHandlerFailure = () => {
+    var strategy = testStrategy({type: 'fail', details: {error:'too bad'}});
+
+    var papersConfig = {
+        strategies: [strategy],
+        customHandler: (req, res, next, result) => {
+        }
+    };
+    return papers().registerMiddleware(papersConfig);
+};
+
+var customHandlerError = () => {
+    var strategy = testStrategy({type: 'error', details: {error:'custom error'}});
+
+    var papersConfig = {
+        strategies: [strategy],
+        customHandler: (req, res, next, result) => {
+            req.customError = result.errorMessage;
+        }
+    };
+    return papers().registerMiddleware(papersConfig);
+};
 
 module.exports = {
     basicSuccess,
@@ -125,7 +159,10 @@ module.exports = {
     error,
     failTwice,
     failWithError,
-    failureRedirect
+    failureRedirect,
+    customHandlerSuccess,
+    customHandlerFailure,
+    customHandlerError
 
 
 };
