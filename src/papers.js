@@ -1,3 +1,5 @@
+require('babel-polyfill');
+require('babel-register');
 const co = require('co');
 var createAuthenticationMiddleware = require('./authenticationMiddleware');
 
