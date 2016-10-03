@@ -140,9 +140,9 @@ module.exports = function() {
       };
 
       if (config.koa2 === true) {
-        return createKoaMiddleware;
+        return createKoaMiddleware(papers);
       } else {
-        return createExpressMiddleware;
+        return createExpressMiddleware(papers);
       }
     }
   }

@@ -88,17 +88,15 @@ const createKoaMiddleware = (papers) => {
       }
     };
 
-    return handleResult(iterate());
-
-    //   ).catch(ex => {
-    //     console.log('==========ex=========');
-    //     console.log(ex);
-    //     console.log('==========END ex=========');
-    //     ctx.res.statusCode = 500;
-    //     return ctx.res.end(`${http.STATUS_CODES[500]} \n ${ex.message} \n ${ex}`);
-    //   })
-    // };
-
+    try {
+      return handleResult(iterate());
+    }catch(ex) {
+      console.log('==========ex=========');
+      console.log(ex);
+      console.log('==========END ex=========');
+      ctx.res.statusCode = 500;
+      return ctx.res.end(`${http.STATUS_CODES[500]} \n ${ex.message} \n ${ex}`);
+    }
   }
 };
 
