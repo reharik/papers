@@ -1,7 +1,8 @@
 require('babel-polyfill');
 require('babel-register');
 const co = require('co');
-var createAuthenticationMiddleware = require('./authenticationMiddleware');
+var createExpressMiddleware = require('./createExpressMiddleware');
+var createKoaMiddleware = require('./createKoaMiddleware');
 
 module.exports = function() {
 
@@ -12,14 +13,14 @@ module.exports = function() {
     if (!session) {
       return;
     }
-    
+
     papers.functions.serializeUser(user, papers)
-        .then(result => {
-          session.user = result;
-        })
-        .catch(err => {
-          throw err
-        });
+      .then(result => {
+        session.user = result;
+      })
+      .catch(err => {
+        throw err
+      });
   };
 
   const logOut = function (req, userProperty, key) {
@@ -34,7 +35,7 @@ module.exports = function() {
 
   const isAuthenticated = function (req) {
     return function () {
-      if(req.user || req.session && req.session[req._papers.key] && req.session[req._papers.key].user){
+      if (req.user || req.session && req.session[req._papers.key] && req.session[req._papers.key].user) {
         return true;
       }
       return false;
@@ -105,10 +106,10 @@ module.exports = function() {
       if (!config || !config.strategies || config.strategies.length <= 0) {
         throw new Error('You must provide at lease one strategy.');
       }
-      if(config.useSession && (
-          !config.serializers|| config.serializers.length <= 0
-        || !config.deserializers || config.deserializers.length <= 0
-        )){
+      if (config.useSession && (
+          !config.serializers || config.serializers.length <= 0
+          || !config.deserializers || config.deserializers.length <= 0
+        )) {
         throw new Error('You must provide at least one user serializer and one user deserializer if you want to use session.');
       }
       //TODO put some validation in for more of this.
@@ -137,7 +138,12 @@ module.exports = function() {
           koa2: config.koa2
         }
       };
-      return createAuthenticationMiddleware(papers);
+
+      if (config.koa2 === true) {
+        return createKoaMiddleware;
+      } else {
+        return createExpressMiddleware;
+      }
     }
   }
 };
