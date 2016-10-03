@@ -133,7 +133,8 @@ module.exports = function() {
           failureRedirect: config.failureRedirect,
           successRedirect: config.successRedirect,
           failWithError: config.failWithError,
-          assignProperty: config.assignProperty
+          assignProperty: config.assignProperty,
+          koa2: config.koa2
         }
       };
       return createAuthenticationMiddleware(papers);
