@@ -9,7 +9,7 @@ const createAuthenticationMiddleware = (papers) => {
     req.isAuthenticated = papers.functions.isAuthenticated(req);
 
     /********* check session for auth *************/
-    const iterator = papers.koa2 ? strategyIterator.asyncIterator :  strategyIterator.coIterator;
+    const iterator = strategyIterator.asyncIterator ;
     iterator(req, res, papers)
       .then((result) => {
       switch(result.type) {
