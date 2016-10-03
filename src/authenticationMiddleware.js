@@ -93,10 +93,6 @@ module.exports = createAuthenticationMiddleware = (papers) => {
     return function *(next) {
       authenticationMiddleware(this.request, this.response, next);
     }
-  }else if(papers.koa2 === true) {
-    return async function (ctx, next) {
-      authenticationMiddleware(ctx.request, ctx.response, next);
-    }
   } else {
     return authenticationMiddleware;
   }
