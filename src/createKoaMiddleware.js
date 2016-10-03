@@ -10,7 +10,7 @@ const checkSessionForAuth = require('./checkSessionForAuth');
 
 const createKoaMiddleware = (papers) => {
 
-  return authenticationMiddleware = async function (ctx, next) {
+  return  async function (ctx, next) {
     /********* add convenience methods to req *************/
     ctx.req.logOut = papers.functions.logOut(ctx.req, papers.options.userProperty, papers.options.key);
     ctx.req.isAuthenticated = papers.functions.isAuthenticated(ctx.req);
