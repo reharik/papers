@@ -9,7 +9,7 @@ const redirect = require('./redirect');
 const checkSessionForAuth = require('./checkSessionForAuth');
 
 
-module.exports = createAuthenticationMiddleware = (papers) => {
+const createAuthenticationMiddleware = (papers) => {
 
   const authenticationMiddleware = (req, res, next) => {
     /********* add convenience methods to req *************/
@@ -101,3 +101,5 @@ module.exports = createAuthenticationMiddleware = (papers) => {
     return authenticationMiddleware;
   }
 };
+
+module.exports = createAuthenticationMiddleware;
