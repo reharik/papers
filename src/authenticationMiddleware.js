@@ -1,13 +1,5 @@
+const strategyIterator = require('./strategyIterator');
 const http = require('_http_server');
-const co = require('co');
-const handleFailurePostIteration = require('./handleFailurePostIteration');
-const handleSuccess = require('./handleSuccess');
-const handleError = require('./handleError');
-const standardizeErrors = require('./standardizeErrors');
-
-const redirect = require('./redirect');
-const checkSessionForAuth = require('./checkSessionForAuth');
-
 
 const createAuthenticationMiddleware = (papers) => {
 
@@ -17,51 +9,9 @@ const createAuthenticationMiddleware = (papers) => {
     req.isAuthenticated = papers.functions.isAuthenticated(req);
 
     /********* check session for auth *************/
-
-    co(function *iterateStrategies() {
-
-      const checkSession = yield checkSessionForAuth(papers, req);
-      if(checkSession.isLoggedIn) {
-        return {type:'session'};
-      }
-
-      let failures = [];
-
-      /********* iterate strategies *************/
-      for (let strategy of papers.functions.strategies) {
-
-        if (!strategy) {
-          continue;
-        }
-
-        var authenticate = strategy.authenticate(req, papers);
-        const stratResult = authenticate && typeof authenticate.then === 'function' ? yield authenticate : authenticate;
-        if (!stratResult || !stratResult.type) {
-          continue
-        }
-
-        switch (stratResult.type) {
-          case 'fail':
-          {
-            failures.push(standardizeErrors(stratResult));
-            break;
-          }
-          case 'redirect':
-          {
-            return {type: 'redirect', value: redirect(res, stratResult.details.url, stratResult.details.statusCode)};
-          }
-          case 'error':
-          {
-            return handleError(stratResult, papers);
-          }
-          case 'success':
-          {
-            return handleSuccess(stratResult, req, res, papers);
-          }
-        }
-      }
-      return handleFailurePostIteration(failures, res, papers);
-    }).then((result) => {
+    const iterator = papers.koa2 ? strategyIterator.asyncIterator :  strategyIterator.coIterator;
+    iterator(req, res, papers)
+      .then((result) => {
       switch(result.type) {
         case 'customHandler': {
           return papers.functions.customHandler(req, res, next, result.value);
