@@ -29,10 +29,6 @@ module.exports = (failures, res, papers) => {
   }
 
   if (res.statusCode == 401 && errorMessages.length) {
-    console.log('==========res=========');
-    console.log(res);
-    console.log('==========END res=========');
-
     res.setHeader('WWW-Authenticate', errorMessages);
   }
   

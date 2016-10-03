@@ -11,10 +11,6 @@ const checkSessionForAuth = require('./checkSessionForAuth');
 
 module.exports = createAuthenticationMiddleware = (papers) => {
   return (req, res, next) => {
-    console.log('==========res1=========');
-    console.log(res);
-    console.log('==========END res=========');
-
     /********* add convenience methods to req *************/
     req.logOut = papers.functions.logOut(req, papers.options.userProperty, papers.options.key);
     req.isAuthenticated = papers.functions.isAuthenticated(req);
@@ -32,9 +28,6 @@ module.exports = createAuthenticationMiddleware = (papers) => {
 
       /********* iterate strategies *************/
       for (let strategy of papers.functions.strategies) {
-        console.log('==========res2=========');
-        console.log(res);
-        console.log('==========END res=========');
 
         if (!strategy) {
           continue;
@@ -66,10 +59,6 @@ module.exports = createAuthenticationMiddleware = (papers) => {
           }
         }
       }
-      console.log('==========res3=========');
-      console.log(res);
-      console.log('==========END res=========');
-
       return handleFailurePostIteration(failures, res, papers);
     }).then((result) => {
       switch(result.type) {
