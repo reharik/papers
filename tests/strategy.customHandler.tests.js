@@ -1,4 +1,4 @@
-var papers = require('./../src/Papers');
+var papers = require('./../src/papers');
 var request = require('./helpers/request');
 var response = require('./helpers/response');
 var strategy = require('./helpers/testStrategy');
@@ -19,7 +19,7 @@ describe('CUSTOM_HANDLER', () => {
       var myStrategy = strategy( {type: 'fail', details: {error:'failed auth'}});
       var config = {
         strategies: [myStrategy],
-        customHandler: (result) => {
+        customHandler: (req,res,next,result) => {
           customHandlerArg = result;
         }
       };
@@ -54,7 +54,7 @@ describe('CUSTOM_HANDLER', () => {
       var myStrategy = strategy( {type: 'error', details: {error:'some error'}});
       var config = {
         strategies: [myStrategy],
-        customHandler: (result) => {
+        customHandler: (req,res,next,result) => {
           customHandlerArg = result;
         }
       };
@@ -92,7 +92,7 @@ describe('CUSTOM_HANDLER', () => {
       var myStrategy = strategy(result);
       var config = {
         strategies: [myStrategy],
-        customHandler: (result) => {
+        customHandler: (req,res,next,result) => {
           customHandlerArg = result;
         }
       };

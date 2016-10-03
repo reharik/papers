@@ -123,6 +123,7 @@ var customHandlerSuccess = () => {
         strategies: [strategy],
         customHandler: (req, res, next, result) => {
             req.customUser = result.details.user.username;
+            next();
         }
     };
     return papers().registerMiddleware(papersConfig);
@@ -134,6 +135,7 @@ var customHandlerFailure = () => {
     var papersConfig = {
         strategies: [strategy],
         customHandler: (req, res, next, result) => {
+            next();
         }
     };
     return papers().registerMiddleware(papersConfig);
@@ -146,6 +148,7 @@ var customHandlerError = () => {
         strategies: [strategy],
         customHandler: (req, res, next, result) => {
             req.customError = result.errorMessage;
+            next();
         }
     };
     return papers().registerMiddleware(papersConfig);

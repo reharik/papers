@@ -1,5 +1,5 @@
 
-var papers = require('./../src/Papers');
+var papers = require('./../src/papers');
 var request = require('./helpers/request');
 var response = require('./helpers/response');
 var strategy = require('./helpers/testStrategy');

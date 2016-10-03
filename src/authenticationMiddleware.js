@@ -10,7 +10,8 @@ const checkSessionForAuth = require('./checkSessionForAuth');
 
 
 module.exports = createAuthenticationMiddleware = (papers) => {
-  return (req, res, next) => {
+
+  const authenticationMiddleware = (req, res, next) => {
     /********* add convenience methods to req *************/
     req.logOut = papers.functions.logOut(req, papers.options.userProperty, papers.options.key);
     req.isAuthenticated = papers.functions.isAuthenticated(req);
@@ -63,7 +64,7 @@ module.exports = createAuthenticationMiddleware = (papers) => {
     }).then((result) => {
       switch(result.type) {
         case 'customHandler': {
-          return papers.functions.customHandler(req, res, next(), result.value);
+          return papers.functions.customHandler(req, res, next, result.value);
         }
         case 'error': {
           return next(result.value.exception);
@@ -85,5 +86,18 @@ module.exports = createAuthenticationMiddleware = (papers) => {
       res.statusCode = 500;
       return res.end(`${http.STATUS_CODES[500]} \n ${ex.message} \n ${ex}`);
     })
+  };
+
+  // I feel like this should be in a separate module but I need the closure for papers
+  if(papers.koa === true) {
+    return function *(next) {
+      authenticationMiddleware(this.request, this.response, next);
+    }
+  }else if(papers.koa2 === true) {
+    return async function (ctx, next) {
+      authenticationMiddleware(ctx.request, ctx.response, next);
+    }
+  } else {
+    return authenticationMiddleware;
   }
 };
