@@ -162,6 +162,37 @@ app.post('/login',
 There is a **Strategy Search** at [paperjs.org](http://paperjs.org)
 Please feel free to port these to papers or ask me to do it.
 
+## API
+
+### papers.registerMiddleware(config={})
+
+Produces middleware ready to provide to either app `app.use(...)`
+or a route `app.post('/login', ..., (req,res)=> {}) `. 
+Valid `config` keys include
+
+- `strategies` (required) - [array] an array of one or more configured papers-strategies.
+- `userProperty` (optional) - [string] default is 'user', you can provide your own key if you like.
+- `failWithError` (optional) - [bool] default is 'false'.  If true if all strategies fail then it throws error rather than calling next with the errors.
+- `failureRedirect` (optional) - [string] default is 'undefined'. If provided a url and all strategies fail, then you are redirected to said url.
+- `successRedirect` (optional) - [string] default is 'undefined'. If provided a url and strategy succeeds, then you are redirected to said url.
+- `useSession` (optional) - [bool] default is 'false'. specify whether you want to use session or not
+	- If you set useSession to true, 
+		- You must specify at least one serialize function and one deserialize function
+		- You must also have enabled session in your express or koa app.
+			- app.use(session());
+- `serializers` (optional) - [array[functions]] default is '[]' . If using session you must provide at least one function that takes a `user` and returns a serialized value for putting in session.
+- `deserializers` (optional) - [array[functions]] default is '[]' . if using session you must provide at least one function that takes a serialized `user` and returns a deserialized value for placing in request.
+- `customHandler` (optional) - [function] default is 'undefined'. If provided, the custom handler is used ***instead of*** internal failure, success and error paths.
+	- signature that is passed is all three cases is customHandler(request, respose, next, result)
+		- request - connect request object
+		- response - connect response object
+		- next - middle ware next function, call to pass on to next middleware
+		- result - the result of your strategy, either a failure message, a user in case of success or an error
+			- `failure` -> `{type:'failure', details:{errorMessage: 'string', statusCode: someStatusCode, exception: exception if provided}}`
+			- `error` -> `{type:'error', details:{errorMessage: 'string', statusCode: someStatusCode, exception: exception if provided}}`
+			- `success` -> `{type:'success', details:{user:user}}`
+
+
 ## Different ways of using Papers
 
 - Here is the most common and most basic set up.
