@@ -1,7 +1,7 @@
-# Paper
+# Papers
 
 
-Paper is promise based authentication
+Papers is promise based authentication
 middleware for [Node.js](http://nodejs.org/).
 
 Papers authenticates requests through an
@@ -9,23 +9,16 @@ extensible set of plugins known as _strategies_.
 
 Papers was inspired by the callback based authentication
 system [Passport](http://passportjs.org/).
-Feature parity is
-almost complete, except for a few minor items that I couldn't
+Feature parity is almost complete, except for a few minor items that I couldn't
 figure out a use case for.
 
 If there are any Passport features that are missing that you need
 I would be happy to implement them.
 
 ## Why Papers
-  - I have never been a fan of callbacks and found using they create very difficult logic to follow
-  I know I'm not alone.
+  - Not a fan of callbacks, and found passport logic very difficult to follow
   - I have also had a difficult time in the past figuring out/using Passport.
-  - I prefer a more functional style with less/no state if possible.  Passport extends both the
-  request and the strategies provided with function which access the internal state of those objects, which I found
-  difficult to work with.  So I have implemented Papers with encapsulated state and pure functions where
-  possible ( if you read the code you'll see it could be more so.  I intend to refine it,
-  but it's possible with the implemented architecture )
-
+  - More functional style with less/no state if possible.  
 
 ## Key differences
   - Papers uses promises and co routines to handle the async or potentially async
@@ -33,7 +26,6 @@ I would be happy to implement them.
   - Papers only extends the request with two functions (isAuthenticated and logout)
   and one property (user or whatever you set the userProperty to be).  It does not touch your strategies
   - Papers setup is different (simpler and more concise in my view).
-  - I hope to demonstrate usage strategies in a way that will help you understand implemnetation options quickly
 
 ## Install
 
@@ -42,6 +34,33 @@ $ npm install paper
 ```
 
 ## Usage
+
+```javascript
+var myStrategy = localStrategy(function(username, password) {
+    // retrieve your user in some way.  
+    // if you get an error or it fails to find user
+    // return type: 'error' or type: 'fail'
+    return {type: 'success', details: {user: user}};
+));
+
+var serializeUser = function(user) {
+  return user.id;
+});
+
+var deserializeUser = function(id) {
+  // retrieve your user again in someway
+  return User.findById(id);
+});
+
+var papersConfig = {
+  strategies: [ myStrategy ],
+  useSession: true,
+  serializers: [ serializeUser ],
+  deserializers: [ deserializeUser ]
+}
+
+app.use(papers().registerMiddleware(config));
+```
 
 #### Strategies
 
@@ -54,25 +73,11 @@ Every strategy necessarily is different. You are responsible for supplying your 
 with what they need to authenticat.
 
 The local strategy is the simplest and most familiar, it requires a function that takes a username and password.
-Niether the strategy nor Papers could know how users are stored in your system.  So you must implement that verification.
+Neither the strategy nor Papers could know how users are stored in your system.  So you must implement that verification.
 But in the end, you either return an error, a failure, or a user.
 In fact, all strategies ultimately will return either an error, a failure or a user.
 
-Obviously a facebook or twitter strategy would require a bit more.  The strategy will tell you what it needs.  Once you
-set up your strategy you provide it to Papers the same way as any other strategy
-
-```javascript
-//This is a callback version but you could ( and preferably would ) return a promise.
-localStrategy(function(username, password) {
-    User.findOne({ username: username }, function (err, user) {
-      if (err) { return {type: 'error', details: {error: err}}; }
-      if (!user) { return {type: 'fail', details: {error: 'message'}}; }
-      if (!user.verifyPassword(password)) { return {type: 'fail', details: {error: 'invalid credentials'}}; }
-      return {type: 'success', details: {user: user}};
-    });
-  }
-));
-```
+Obviously a facebook or twitter strategy would require a bit more.  The strategy will tell you what it needs.  Once you setup your strategy you provide it to Papers the same way as any other strategy
 
 Passport has 300+ strategies.  I have ported a few, it's quite easy.  Please find the ones you want at: [paperjs.org](http://paperjs.org)
 and port them or ask me and I'll do it.
@@ -98,6 +103,18 @@ const deserializeUser = function(id) {
   return User.findById(id);
 });
 ```
+
+If your user object is small and serializable you could just keep it in session
+```javascript
+const serializeUser = function(user) {
+  return user;
+});
+
+const deserializeUser = function(user) {
+  return user;
+});
+```
+
 #### Middleware
 
 To use Papers in an [Express](http://expressjs.com/) or
@@ -123,8 +140,8 @@ app.use(papers().registerMiddleware(config));
 
 #### Authenticate Requests
 
-By registeringMiddleware you have told express to apply your strategy(ies) to every request.
-If you specifiy useSession to be true,  it will always check session first before trying to authenticate.
+By calling registerMiddleware you have told express to apply your strategy(ies) to every request.
+If you specify useSession to be true,  it will always check session first before trying to authenticate.
 If you would like to only authenticate a certain route then instead of
 
 ```javascript
@@ -183,7 +200,7 @@ Please feel free to port these to papers or ask me to do it.
 ```
 
 ## Data Flow
-  ### Typical path
+ **Typical path**
   - your request comes in
     - we decorate request with "logOut" function and "isAuthenticated" function
       - logOut is a convience method that cleans up for you, with out your needing
@@ -202,7 +219,7 @@ Please feel free to port these to papers or ask me to do it.
     - In some of those cases your request will land in your controller and you will be able to handle it however you like.
     - There are a couple of alternative paths you might want to use
 
-  ### Custom handling
+  **Custom handling**
     alternatively you can provide a custom handler that deals with each state as it comes back
 
   - your request comes in
