@@ -5,10 +5,10 @@ module.exports = function() {
 
   logIn = function (req, user, papers) {
     req[papers.options.userProperty] = user;
-    
     if(!papers.options.useSession || !req.session){
       return;
     }
+
 
     req.session[papers.options.key] = req.session[papers.options.key] || {};
     papers.functions.serializeUser(user, papers)

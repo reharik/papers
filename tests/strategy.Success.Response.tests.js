@@ -51,13 +51,15 @@ describe('SUCCESS_RESPONSE', () => {
       var next = (arg) => {
         nextArg = 'calledNext';
       };
-      user = {name: 'bubba'}
+      user = {name: 'bubba'};
       var myStrategy = strategy({type:'success', details: {user}});
       var config = {
         strategies: [myStrategy],
-        serializers: [(user)=>{user.serialized=true; return user}]
+        serializers: [(user)=>{user.serialized=true; return user}],
+        deserializers: [(user)=>{user.deserialized=true; return user}],
+        useSession:true
       };
-      req.session = {papers: {}}
+      req.session = {papers: {}};
 
       SUT = papers().registerMiddleware(config);
       SUT(req, res, next);
@@ -93,7 +95,9 @@ describe('SUCCESS_RESPONSE', () => {
       var myStrategy = strategy({type:'success', details: {user}});
       var config = {
         strategies: [myStrategy],
-        serializers: [(user)=>{user.serialized=true; return user}]
+        serializers: [(user)=>{user.serialized=true; return user}],
+        deserializers: [(user)=>{user.deserialized=true; return user}],
+        useSession:true
       };
       req.session = {returnTo: 'some.url', papers: {}}
 
