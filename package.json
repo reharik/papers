@@ -5,13 +5,15 @@
   "main": "src/papers.js",
   "scripts": {
     "test": "mocha --watch tests/*",
-    "intTests": "mocha integrationTests/*.tests.js"
+    "intTests": "mocha integrationTests/*.tests.js",
+    "testcov": "istanbul cover node_modules/mocha/bin/_mocha -- tests/* integrationTests/*.tests.js"
   },
   "author": "",
   "license": "ISC",
   "devDependencies": {
     "chai": "^3.5.0",
     "express": "^4.14.0",
+    "istanbul": "^1.1.0-alpha.1",
     "mocha": "^3.0.2",
     "papers-local": "reharik/papers-local",
     "supertest": "^2.0.0"
