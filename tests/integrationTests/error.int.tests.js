@@ -24,7 +24,7 @@ describe('ERROR', ()=> {
       request(app)
         .get('/')
         .expect( (res)=> {
-          res.text.should.contain('wtf! soemthing happened!')})
+          res.text.should.contain('omg! soemthing happened!')})
         .expect(500, done)
     })
   })

@@ -45,7 +45,7 @@ describe('FAIL TWICE', ()=> {
     it("should_put_error_in_headers_and_return_401", (done) => {
       request(app)
         .get('/')
-        .expect("WWW-Authenticate", 'wtf! soemthing happened!, wtf! soemthing happened! again!!!')
+        .expect("WWW-Authenticate", 'omg! soemthing happened!, omg! soemthing happened! again!!!')
         .expect(401, done)
     })
   })
@@ -70,7 +70,7 @@ describe('FAIL WITH_ERROR', ()=> {
     it("should_put_error_in_headers_and_return_401", (done) => {
       request(app)
         .get('/')
-        .expect("WWW-Authenticate", 'wtf! soemthing happened!, wtf! soemthing happened! again!!!')
+        .expect("WWW-Authenticate", 'omg! soemthing happened!, omg! soemthing happened! again!!!')
         .expect(401, done)
     })
   })

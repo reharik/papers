@@ -1,25 +1,24 @@
-var papers = require('./../src/papers');
-var request = require('./helpers/request');
-var response = require('./helpers/response');
-var strategy = require('./helpers/testStrategy');
+var papers = require('./../../src/papers');
+var request = require('./../helpers/request');
+var response = require('./../helpers/response');
+var strategy = require('./../helpers/testStrategy');
 var chai = require('chai');
 var expect = chai.expect;
 chai.should();
 
-describe('NO_RESPONSE', () => {
-  describe('when_no_strategy_is_successful_and_no_specific_errors', () => {
+describe('FAIL_RESPONSE', () => {
+  describe('when_fail_is_called_by_strategy', () => {
     let SUT = undefined;
     let req;
     let res;
     beforeEach((done) => {
       req = request();
       res = response();
-      var myStrategy = strategy();
+      var myStrategy = strategy({type:'fail', details:{error:'auth failed'}});
       var config = {
         strategies: [myStrategy]
       };
       SUT = papers().registerMiddleware(config);
-
       SUT(req, res);
       setTimeout(done,10);
     });
@@ -29,7 +28,7 @@ describe('NO_RESPONSE', () => {
     });
 
     it('should_set_res_header_WWWW-Authenticate_to_error_message', () => {
-      res.getHeader('WWW-Authenticate')[0].should.equal('No successful login strategy found');
+      res.getHeader('WWW-Authenticate')[0].should.equal('auth failed');
     });
 
     it('should_call_res.end', () => {
@@ -38,7 +37,7 @@ describe('NO_RESPONSE', () => {
 
   });
 
-  describe('when_no_strategy_is_successful_and_no_specific_errors_and_fail_with_error', () => {
+  describe('when_fail_is_called_by_strategy_and_failWithError_specified', () => {
     let SUT = undefined;
     let req;
     let res;
@@ -46,7 +45,7 @@ describe('NO_RESPONSE', () => {
     beforeEach((done) => {
       req = request();
       res = response();
-      var myStrategy = strategy();
+      var myStrategy = strategy({type:'fail', details:{error:'auth failed'}});
       var config = {
         strategies: [myStrategy],
         failWithError: true
@@ -59,32 +58,28 @@ describe('NO_RESPONSE', () => {
       setTimeout(done,10);
     });
 
-    it('should_call_next_with_proper_arg', () => {
-      nextArg.should.be.a('Error');
-    });
-
     it('should_call_next_poper_error_message', () => {
-      nextArg.message.should.equal('Unauthorized');
+      nextArg.should.eql(new Error('Unauthorized'));
     });
 
     it('should_set_res_header_WWWW-Authenticate_to_error_message', () => {
-      res.getHeader('WWW-Authenticate')[0].should.equal('No successful login strategy found');
+      res.getHeader('WWW-Authenticate')[0].should.equal('auth failed');
     });
   });
 
-  describe('when_no_strategy_is_successful_and_no_specific_errors_and_failureRedirect', () => {
+  describe('when_fail_is_called_by_strategy_and_failureRedirect', () => {
     let SUT = undefined;
     let req;
     let res;
     beforeEach((done) => {
       req = request();
       res = response();
-      var myStrategy = strategy();
+      var myStrategy = strategy({type:'fail', details:{error:'auth failed'}});
       var config = {
         strategies: [myStrategy],
         failureRedirect: 'some.url'
       };
-      
+
       SUT = papers().registerMiddleware(config);
       SUT(req, res);
       setTimeout(done,10);
@@ -103,13 +98,11 @@ describe('NO_RESPONSE', () => {
     });
 
     it('should_set_res_header_WWWW-Authenticate_to_error_message', () => {
-      res.getHeader('WWW-Authenticate')[0].should.equal('No successful login strategy found');
+      res.getHeader('WWW-Authenticate')[0].should.equal('auth failed');
     });
 
     it('should_call_res.end', () => {
       res.endWasCalled.should.be.true
     });
   });
-
-
 });

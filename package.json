@@ -4,9 +4,9 @@
   "description": "",
   "main": "src/papers.js",
   "scripts": {
-    "test": "mocha --watch tests/*",
-    "intTests": "mocha integrationTests/*.tests.js",
-    "testcov": "istanbul cover node_modules/mocha/bin/_mocha -- tests/* integrationTests/*.tests.js"
+    "test": "mocha --watch tests/unitTests/*",
+    "intTests": "mocha tests/integrationTests/*.tests.js",
+    "testcov": "istanbul cover node_modules/mocha/bin/_mocha -- tests/**/*.tests.js"
   },
   "author": "",
   "license": "ISC",

@@ -1,6 +1,6 @@
 var papersLocal = require('papers-local');
-var testStrategy = require('./../tests/helpers/testStrategy');
-var papers = require('./../src/papers');
+var testStrategy = require('./../helpers/testStrategy');
+var papers = require('./../../src/papers');
 
 var basicSuccess = (app) => {
 
@@ -68,7 +68,7 @@ var redirect = (app) => {
 
 var error = (app) => {
 
-    var strategy = testStrategy({type:'error', details: {error: new Error("wtf! soemthing happened!")}});
+    var strategy = testStrategy({type:'error', details: {error: new Error("omg! soemthing happened!")}});
 
     var papersConfig = {
         strategies: [strategy]
@@ -83,8 +83,8 @@ var error = (app) => {
 };
 
 var failTwice = () => {
-    var strategy = testStrategy({type:'fail', details: {error: new Error("wtf! soemthing happened!")}});
-    var strategy2 = testStrategy({type:'fail', details: {error: new Error("wtf! soemthing happened! again!!!"), statusCode:401}});
+    var strategy = testStrategy({type:'fail', details: {error: new Error("omg! soemthing happened!")}});
+    var strategy2 = testStrategy({type:'fail', details: {error: new Error("omg! soemthing happened! again!!!"), statusCode:401}});
 
     var papersConfig = {
         strategies: [strategy, strategy2]
@@ -94,8 +94,8 @@ var failTwice = () => {
 };
 
 var failWithError = () => {
-    var strategy = testStrategy({type:'fail', details: {error: new Error("wtf! soemthing happened!")}});
-    var strategy2 = testStrategy({type:'fail', details: {error: new Error("wtf! soemthing happened! again!!!"), statusCode:401}});
+    var strategy = testStrategy({type:'fail', details: {error: new Error("omg! soemthing happened!")}});
+    var strategy2 = testStrategy({type:'fail', details: {error: new Error("omg! soemthing happened! again!!!"), statusCode:401}});
 
     var papersConfig = {
         strategies: [strategy, strategy2],
@@ -106,7 +106,7 @@ var failWithError = () => {
 };
 
 var failureRedirect = () => {
-    var strategy = testStrategy({type:'fail', details: {error: new Error("wtf! soemthing happened!")}});
+    var strategy = testStrategy({type:'fail', details: {error: new Error("omg! soemthing happened!")}});
 
     var papersConfig = {
         strategies: [strategy],

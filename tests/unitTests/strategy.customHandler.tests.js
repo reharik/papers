@@ -1,7 +1,7 @@
-var papers = require('./../src/papers');
-var request = require('./helpers/request');
-var response = require('./helpers/response');
-var strategy = require('./helpers/testStrategy');
+var papers = require('./../../src/papers');
+var request = require('./../helpers/request');
+var response = require('./../helpers/response');
+var strategy = require('./../helpers/testStrategy');
 var chai = require('chai');
 var expect = chai.expect;
 chai.should();
